@@ -38,8 +38,8 @@ public class Home extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setHasFixedSize(true);
 
-
         listItems = new ArrayList<>() ;
+
 
         loadRecyclerViewData() ;
     }
