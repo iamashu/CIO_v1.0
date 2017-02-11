@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -70,18 +72,21 @@ public class LoginActivity extends AppCompatActivity {
                 final String email = eUname.getText().toString() ;
                 final String password = ePass.getText().toString() ;
 
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                Response.Listener<String> responseListener = new Response.Listener<String>()
+                {
 
                     @Override
                     public void onResponse(String response) {
+                        System.out.println("Entering onResponse");
                         try
                         {
+                            System.out.println("Entering try");
                             JSONObject jsonObject = new JSONObject(response) ;
                             boolean success = jsonObject.getBoolean("success") ;
 
                             if(success)
                             {
-                                System.out.println("jhgjhello");
+                                System.out.println("Successful");
                                 Intent intent = new Intent(LoginActivity.this, Home.class) ;
                                 startActivity(intent);
                             }
@@ -97,11 +102,15 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         catch (JSONException e)
                         {
+                            System.out.println("Entering catch");
                             e.printStackTrace();
                         }
+                        System.out.println("No try-catch");
                     }
                 };
                 LoginRequest loginRequest = new LoginRequest(email, password, responseListener) ;
+                RequestQueue queue = Volley.newRequestQueue(LoginActivity.this) ;
+                queue.add(loginRequest) ;
             }
         });
 
