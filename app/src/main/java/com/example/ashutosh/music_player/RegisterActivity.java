@@ -1,13 +1,12 @@
 package com.example.ashutosh.music_player;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,8 +27,6 @@ public class RegisterActivity extends AppCompatActivity {
         final EditText etUname = (EditText) findViewById(R.id.etUname) ;
         final EditText etPhone = (EditText) findViewById(R.id.etMobile) ;
         Button btregister = (Button) findViewById(R.id.btRegister) ;
-
-        TextView tvTOS = (TextView) findViewById(R.id.tvTOS) ;
 
         btregister.setOnClickListener(new View.OnClickListener() {
 
