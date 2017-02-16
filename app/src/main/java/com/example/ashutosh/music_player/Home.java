@@ -14,20 +14,21 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 public class Home extends AppCompatActivity {
 
-    private static final String URL_DATA = "http://davidpots.com/jakeworry/017%20JSON%20Grouping,%20part%203/data.json" ;
+    private static final String URL_DATA = "http://www.radiomirchi.com/more/mirchi-top-20" ;
     private RecyclerView rv ;
     private RecyclerView.Adapter adapter ;
-    private List<ListItem> listItems ;
-
+    ArrayList<String> arrayList ;
+    ArrayList<String> arrayList1 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +38,6 @@ public class Home extends AppCompatActivity {
         rv = (RecyclerView) findViewById(R.id.rview1) ;
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setHasFixedSize(true);
-
-        listItems = new ArrayList<>() ;
-
 
         loadRecyclerViewData() ;
     }
@@ -57,28 +55,33 @@ public class Home extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         progressDialog.dismiss();
-                        try {
-                            JSONObject jsonObject = new JSONObject(response) ;
-                            JSONArray array = jsonObject.getJSONArray("songs") ;
+                        try
+                        {
+                            Document document = Jsoup.parse(response) ;
+                            Elements arr1 = document.getElementsByTag("h2") ;
+                            Elements arr2 = document.select("div.movieImg img") ;
+                            arrayList = new ArrayList<String>() ;
+                            arrayList1 = new ArrayList<String>() ;
+                            Iterator i1 = arr1.listIterator() ;
 
-                            for(int i=0 ; i<array.length() ; i++)
+                            while(i1.hasNext())
                             {
-                                JSONObject o = array.getJSONObject(i) ;
-                                ListItem item = new ListItem(
-                                        o.getString("title") ,
-                                        o.getString("artist") ,
-                                        o.getString("img_url")
-                                ) ;
-                                listItems.add(item) ;
+                                arrayList.add(i1.next().toString().replace("<h2>", "").replace("</h2>", "").replace("Video", "").replace("Song", "")) ;
+                            }
+                            for(Element el : arr2)
+                            {
+                                    String s = "http://www.radiomirchi.com" + el.attr("src");
+                                    arrayList1.add(s) ;
                             }
 
-                            adapter = new MyAdapter(listItems, getApplicationContext()) ;
+                            adapter = new MyAdapter(arrayList,arrayList1,getApplicationContext()) ;
                             rv.setAdapter(adapter);
-
-
-                        } catch (JSONException e) {
+                        }
+                        catch (Exception e)
+                        {
                             e.printStackTrace();
                         }
+
                     }
                 },
                 new Response.ErrorListener() {
