@@ -37,6 +37,8 @@ public class Home extends AppCompatActivity {
 
         rv = (RecyclerView) findViewById(R.id.rview1) ;
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+      //  DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(), LinearLayoutManager.HORIZONTAL) ;
+      //  rv.addItemDecoration(dividerItemDecoration);
         rv.setHasFixedSize(true);
 
         loadRecyclerViewData() ;
