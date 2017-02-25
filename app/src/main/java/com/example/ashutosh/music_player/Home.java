@@ -35,7 +35,7 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        rv = (RecyclerView) findViewById(R.id.rview1) ;
+        rv = (RecyclerView) findViewById(R.id.rview) ;
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setHasFixedSize(true);
 

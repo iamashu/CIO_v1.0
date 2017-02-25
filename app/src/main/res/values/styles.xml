@@ -8,10 +8,18 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme1" parent="android:Theme.Material">
+
+    </style>
+
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="AppTheme.NoActionBar.AppBarOverlay" parent="AppTheme" />
+
+    <style name="AppTheme.NoActionBar.PopupOverlay" parent="AppTheme" />
 
 </resources>

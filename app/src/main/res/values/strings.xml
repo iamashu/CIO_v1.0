@@ -28,6 +28,12 @@
 
 
     <string name="list_item">Weekly Top 20</string>
+    <string name="title_activity_home2">Home2</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 
 
 </resources>
