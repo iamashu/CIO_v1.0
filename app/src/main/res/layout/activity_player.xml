@@ -10,22 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.ashutosh.music_player.Player">
 
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="46dp"
-        android:id="@+id/seekBar" />
-
-    <Button
-        android:text="||"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignBottom="@+id/btFB"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/btPlay" />
-
     <Button
         android:text="|&lt;"
         android:layout_width="wrap_content"
@@ -36,16 +20,6 @@
         android:layout_marginLeft="11dp"
         android:layout_marginStart="11dp"
         android:id="@+id/btPrev" />
-
-    <Button
-        android:text="&lt;&lt;"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:id="@+id/btFB"
-        android:layout_below="@+id/seekBar"
-        android:layout_toLeftOf="@+id/btPlay"
-        android:layout_toStartOf="@+id/btPlay" />
 
     <Button
         android:text="&gt;&gt;"
@@ -64,4 +38,36 @@
         android:id="@+id/btNext"
         android:layout_alignTop="@+id/btFF"
         android:layout_toRightOf="@+id/btFF" />
+
+    <Button
+        android:text="||"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/btPlay"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="110dp" />
+
+    <Button
+        android:text="&lt;&lt;"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/btFB"
+        android:layout_alignTop="@+id/btPrev"
+        android:layout_toEndOf="@+id/btPrev" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_above="@+id/btFB"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="16dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        />
+
 </RelativeLayout>
