@@ -13,5 +13,5 @@ import retrofit2.http.Query;
 public interface SCService
 {
     @GET("/tracks?client_id=" + Config.CLIENT_ID)
-    Call<List<Track>> getRecentTracks(@Query("created_at") String date) ;
+    Call<List<Track>> getRecentTracks(@Query("user_id") String userID) ;
 }
