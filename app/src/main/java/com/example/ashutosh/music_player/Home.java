@@ -1,10 +1,13 @@
 package com.example.ashutosh.music_player;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,6 +32,12 @@ public class Home extends AppCompatActivity {
     private RecyclerView.Adapter adapter ;
     ArrayList<String> arrayList ;
     ArrayList<String> arrayList1 ;
+    private ImageView party  ;
+    private ImageView love  ;
+    private ImageView sad  ;
+    private ImageView dance  ;
+    private ImageView motivation  ;
+    private ImageView journey ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +49,62 @@ public class Home extends AppCompatActivity {
         rv.setHasFixedSize(true);
 
         loadRecyclerViewData() ;
+
+        party = (ImageView) findViewById(R.id.iv1) ;
+        love = (ImageView) findViewById(R.id.iv2) ;
+        sad = (ImageView) findViewById(R.id.iv3) ;
+        dance = (ImageView) findViewById(R.id.iv4) ;
+        motivation = (ImageView) findViewById(R.id.iv5) ;
+        journey = (ImageView) findViewById(R.id.iv6) ;
+
+        party.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "one") ;
+                startActivity(intent);
+            }
+        });
+        love.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "two") ;
+                startActivity(intent);
+            }
+        });
+        sad.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "three") ;
+                startActivity(intent);
+            }
+        });
+        dance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "four") ;
+                startActivity(intent);
+            }
+        });
+        motivation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "five") ;
+                startActivity(intent);
+            }
+        });
+        journey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Main2Activity.class) ;
+                intent.putExtra("category" , "six") ;
+                startActivity(intent);
+            }
+        });
     }
 
     private void loadRecyclerViewData()

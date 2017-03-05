@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +37,18 @@ public class LoginActivity extends AppCompatActivity {
         final EditText ePass = (EditText) findViewById(R.id.editPass) ;
         final Button btLogin = (Button) findViewById(R.id.btLogin) ;
         final TextView btReg = (TextView) findViewById(R.id.tvRegister) ;
+
+        eUname.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus)
+            {
+                if (!Patterns.EMAIL_ADDRESS.matcher(eUname.getText()).matches())
+                {
+                    eUname.setError("Invalid Email");
+                }
+            }
+        });
 
         loginButton = (LoginButton) findViewById(R.id.fb_login_btn) ;
         callbackManager = CallbackManager.Factory.create();
@@ -116,6 +129,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

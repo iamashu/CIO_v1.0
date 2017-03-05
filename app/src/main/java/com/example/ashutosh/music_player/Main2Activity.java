@@ -4,6 +4,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -35,12 +36,19 @@ public class Main2Activity extends AppCompatActivity {
     private ImageView mSelectedTrackImage ;
     private MediaPlayer mMediaPlayer ;
     private ImageView mPlayerControl ;
+    private ImageView mforward ;
+    private ImageView catView ;
+    private Toolbar tb ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
+        tb = (Toolbar) findViewById(R.id.bar_player) ;
+        catView = (ImageView) findViewById(R.id.catv) ;
+        catView.getLayoutParams().height = 550 ;
 
         mMediaPlayer = new MediaPlayer() ;
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -65,9 +73,11 @@ public class Main2Activity extends AppCompatActivity {
         mAdapter = new SCTrackAdapter(this,mListItems) ;
         listView.setAdapter(mAdapter);
 
+
         mSelectedTrackTitle = (TextView) findViewById(R.id.selected_track_title) ;
         mSelectedTrackImage = (ImageView) findViewById(R.id.selected_track_image) ;
         mPlayerControl = (ImageView) findViewById(R.id.player_control) ;
+        mforward = (ImageView) findViewById(R.id.forward) ;
 
         mPlayerControl.setOnClickListener(new View.OnClickListener() {
 
@@ -105,19 +115,66 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
+        mforward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediaPlayer.seekTo(mMediaPlayer.getCurrentPosition() + 30000);
+            }
+        });
+
+
+/*        tb.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Main2Activity.this, Player.class) ;
+                startActivity(intent);
+            }
+        }); */
+
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Config.API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build() ;
 
         SCService scService = SoundCloud.getService();
-        scService.getRecentTracks("Sad").enqueue(new Callback<List<Track>>() {
+
+        String s1 = getIntent().getStringExtra("category") ;
+        String s2 ;
+        String s3 = "catv1" ;
+
+        switch(s1)
+        {
+            case "one" : s2 = "paarth-saxena" ;
+                         s3 = "catv3" ;
+                          break ;
+            case "two" : s2 = "aman-mishra-157201769" ;
+                         s3 = "catv6" ;
+                          break ;
+            case "three" : s2 = "paarth-saxena-18555615" ;
+                           s3 = "catv1" ;
+                          break ;
+            case "four" : s2 = "aman-mishra-529892685" ;
+                          s3 = "catv2" ;
+                          break ;
+            case "five" : s2 = "ashutosh-agarwal-16" ;
+                          s3 = "catv4" ;
+                          break ;
+            case "six" : s2 = "ashutosh-agarwal-89845524" ;
+                          s3 = "catv5" ;
+                          break ;
+            default: s2 = "ashutosh-agarwal-16" ;
+        }
+        final int resID = getResources().getIdentifier(s3, "drawable", getPackageName()) ;
+        scService.getRecentTracks(s2).enqueue(new Callback<List<Track>>() {
             @Override
             public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
                 if(response.isSuccessful())
                 {
                     List<Track> tracks = response.body() ;
                     loadTracks(tracks) ;
+                    catView.setImageResource(resID);
                 }
                 else
                 {
@@ -157,6 +214,7 @@ public class Main2Activity extends AppCompatActivity {
         {
             mMediaPlayer.start();
             mPlayerControl.setImageResource(R.drawable.ic_pause);
+            mforward.setImageResource(R.drawable.forward3);
         }
     }
 

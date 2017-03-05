@@ -4,7 +4,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Query;
+import retrofit2.http.Path;
 
 /**
  * Created by ashutosh on 26/2/17.
@@ -12,6 +12,6 @@ import retrofit2.http.Query;
 
 public interface SCService
 {
-    @GET("/tracks?client_id=" + Config.CLIENT_ID)
-    Call<List<Track>> getRecentTracks(@Query("user_id") String userID) ;
+    @GET("/users/{id}/favorites?client_id=" + Config.CLIENT_ID)
+    Call<List<Track>> getRecentTracks(@Path("id") String userID) ;
 }

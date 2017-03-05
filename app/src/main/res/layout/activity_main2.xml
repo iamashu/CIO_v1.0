@@ -1,34 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.ashutosh.music_player.Main2Activity">
 
-    <ListView
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/catv" />
+
+    <ListView
         android:id="@+id/track_list_view"
         android:layout_width="match_parent"
         android:layout_weight="100"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:overScrollHeader="@drawable/catv1"/>
+
+
 
     <android.support.v7.widget.Toolbar
+        android:id="@+id/bar_player"
         android:background="#333333"
         android:theme="@style/Theme.AppCompat.Dark.DarkActionBar"
         android:layout_width="match_parent"
-        android:layout_height="100dp" >
+        android:layout_height="50dp"
+        app:contentInsetStart="0dp">
 
         <ImageView
             android:id="@+id/selected_track_image"
-            android:layout_width="92dp"
-            android:layout_height="92dp" />
+            android:layout_width="50dp"
+            android:layout_height="55dp" />
 
         <TextView
             android:id="@+id/selected_track_title"
             android:paddingLeft="8dp"
-            android:layout_width="wrap_content"
+            android:layout_width="220dp"
             android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/forward"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="30dp"/>
 
         <ImageView
             android:id="@+id/player_control"
@@ -39,3 +56,4 @@
     </android.support.v7.widget.Toolbar>
 
 </LinearLayout>
+

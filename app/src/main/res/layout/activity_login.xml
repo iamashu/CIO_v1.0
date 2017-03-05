@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_login"
     android:layout_width="match_parent"
@@ -9,23 +9,24 @@
     android:paddingRight="16dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    android:background="@drawable/c333"
-    tools:context="com.example.ashutosh.music_player.LoginActivity">
+    android:background="@drawable/cis_1"
+    tools:context="com.example.ashutosh.music_player.LoginActivity"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:background="#dedede"
-        android:textSize="25dp"
+        android:background="@color/dot_inactive"
+        android:textSize="25sp"
         android:gravity="center_vertical"
         android:hint="Email"
         android:drawablePadding="10dp"
         android:padding="10dp"
-        android:textColorHint="#7f8c8d"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="278dp"
+        android:textColorHint="@android:color/background_light"
+        android:layout_gravity="center"
+        android:layout_marginTop="288dp"
         android:id="@+id/editUname"/>
 
     <EditText
@@ -33,15 +34,15 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:id="@+id/editPass"
-        android:background="#dedede"
+        android:background="@color/dot_inactive"
         android:hint="Password"
-        android:textSize="25dp"
+        android:textSize="25sp"
         android:gravity="center_vertical"
         android:drawablePadding="10dp"
         android:padding="10dp"
-        android:textColorHint="#7f8c8d"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:textColorHint="@android:color/background_light"
+        android:layout_gravity = "center"
+        android:layout_below="@+id/editUname"
         android:layout_marginTop="6dp"
         />
 
@@ -49,39 +50,36 @@
         android:text="LOGIN"
         android:layout_width="340dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:padding="15dp"
-        android:textSize="25dp"
+        android:textSize="25sp"
         android:textColor="#ffffff"
         android:id="@+id/btLogin"
         android:background="#27ae60"
         android:layout_below="@+id/editPass"
         android:layout_centerHorizontal="true" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fb_login_btn"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical">
+        style="@style/com_facebook_button_share"
+        android:layout_gravity="center"
+        android:layout_below="@+id/btLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"/>
 
-        <TextView
-            android:text="Register Now"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tvRegister"
-            android:textColor="#ffffff"
-            android:textSize="18dp"
-            android:layout_marginLeft="124dp"/>
-
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/fb_login_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/com_facebook_button_share"
-            android:layout_marginLeft="82dp"
-            android:layout_marginTop="40dp"/>
-
-    </LinearLayout>
+    <TextView
+        android:text="Register Now"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvRegister"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="6dp"
+        android:layout_below="@+id/fb_login_btn"
+        android:layout_centerHorizontal="true" />
 
 
-</LinearLayout>
+</RelativeLayout>
