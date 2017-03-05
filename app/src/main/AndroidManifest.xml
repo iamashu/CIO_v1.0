@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity android:name=".MainActivity" />
         <activity android:name=".Player" />
-        <activity android:name=".Home"></activity>
+        <activity android:name=".Home" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -27,19 +27,13 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".activity_intro">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".Main2Activity">
-
-
-
-        </activity>
+        <activity android:name=".Main2Activity"></activity>
     </application>
 
 </manifest>

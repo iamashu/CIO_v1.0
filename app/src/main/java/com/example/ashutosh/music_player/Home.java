@@ -16,6 +16,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,6 +45,8 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.boom);
 
         rv = (RecyclerView) findViewById(R.id.rview) ;
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -105,15 +109,15 @@ public class Home extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        for(int i=0 ; i<bmb.getPiecePlaceEnum().pieceNumber() ; i++)
+        {
+            SimpleCircleButton.Builder builder = new SimpleCircleButton.Builder()
+                    .normalImageRes(R.drawable.ic_menu_gallery) ;
+            bmb.addBuilder(builder);
+        }
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(Intent.ACTION_MAIN) ;
-        intent.addCategory(Intent.CATEGORY_HOME) ;
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ;
-        startActivity(intent);
-    }
 
     private void loadRecyclerViewData()
     {
