@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
-
 public class activity_intro extends Activity {
 
     private ViewPager viewPager;
@@ -127,7 +125,8 @@ public class activity_intro extends Activity {
 
     private void launchHomeScreen()
     {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
+        startActivity(new Intent(this, LoginActivity.class));
+       /* AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
         if(accessToken != null)
         {
             startActivity(new Intent(this, Home.class));
@@ -136,7 +135,7 @@ public class activity_intro extends Activity {
         {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-        }
+        } */
     }
 
 

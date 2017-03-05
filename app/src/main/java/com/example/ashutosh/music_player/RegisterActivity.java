@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +29,28 @@ public class RegisterActivity extends AppCompatActivity {
         final EditText etPhone = (EditText) findViewById(R.id.etMobile) ;
         Button btregister = (Button) findViewById(R.id.btRegister) ;
 
+        etEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus)
+            {
+                if (!Patterns.EMAIL_ADDRESS.matcher(etEmail.getText()).matches())
+                {
+                    etEmail.setError("Invalid Email");
+                }
+            }
+        });
+
+        etPhone.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(! Patterns.PHONE.matcher(etPhone.getText()).matches())
+                {
+                    etPhone.setError("Invalid Phone No.");
+                }
+            }
+        });
+
         btregister.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -36,6 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
                 final String username = etUname.getText().toString() ;
                 final String password = etPass.getText().toString() ;
                 final String phone = etPhone.getText().toString() ;
+
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
