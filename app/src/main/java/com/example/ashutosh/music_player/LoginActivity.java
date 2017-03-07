@@ -1,5 +1,6 @@
 package com.example.ashutosh.music_player;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -13,20 +14,27 @@ import android.widget.TextView;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 public class LoginActivity extends AppCompatActivity {
 
     LoginButton loginButton ;
     CallbackManager callbackManager ;
-
+    private String facebook_id, full_name, email_id ;
+    ProgressDialog progress ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +45,12 @@ public class LoginActivity extends AppCompatActivity {
         final EditText ePass = (EditText) findViewById(R.id.editPass) ;
         final Button btLogin = (Button) findViewById(R.id.btLogin) ;
         final TextView btReg = (TextView) findViewById(R.id.tvRegister) ;
+
+        progress = new ProgressDialog(LoginActivity.this) ;
+        progress.setMessage("Please Wait");
+        progress.setIndeterminate(false);
+        progress.setCancelable(false);
+
 
         eUname.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
@@ -50,26 +64,80 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
         loginButton = (LoginButton) findViewById(R.id.fb_login_btn) ;
+        loginButton.setReadPermissions("public_profile");
         callbackManager = CallbackManager.Factory.create();
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>()
+        {
             @Override
-            public void onSuccess(LoginResult loginResult)
+            public void onSuccess(LoginResult loginResult) {
+                progress.show() ;
+
+                GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        try
+                        {
+                            email_id = object.getString("email") ;
+                            full_name = object.getString("first_name") ;
+                            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+
+                                    try
+                                    {
+                                        JSONObject jsonObject = new JSONObject(response) ;
+                                        boolean success = jsonObject.getBoolean("success") ;
+
+                                        Intent intent = new Intent(LoginActivity.this, Home.class) ;
+                                        startActivity(intent);
+                                    }
+                                    catch (JSONException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            } ;
+
+                            RegisterRequest registerRequest = new RegisterRequest(email_id, full_name, "qwerty", "9999999999", responseListener) ;
+                            RequestQueue queue = Volley.newRequestQueue(LoginActivity.this) ;
+                            queue.add(registerRequest) ;
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }) ;
+                Bundle parameters = new Bundle()  ;
+                parameters.putString("fields", "id,first_name,email");
+                request.setParameters(parameters);
+                request.executeAsync() ;
+                progress.dismiss();
+            }
+            @Override
+            public void onCancel()
             {
-                Intent intent = new Intent(LoginActivity.this, Home.class) ;
-                startActivity(intent);
-            }
-
-            @Override
-            public void onCancel() {
 
             }
 
             @Override
-            public void onError(FacebookException error) {
+            public void onError(FacebookException error)
+            {
 
             }
         });
+
+
+loginButton.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("public_profile", "user_friends", "email"));
+        System.out.println(email_id) ;
+
+};
+});
 
         btReg.setOnClickListener(new View.OnClickListener() {
 
@@ -94,7 +162,6 @@ public class LoginActivity extends AppCompatActivity {
                         System.out.println("Entering onResponse");
                         try
                         {
-                            System.out.println("Entering try");
                             JSONObject jsonObject = new JSONObject(response) ;
                             boolean success = jsonObject.getBoolean("success") ;
 
@@ -132,8 +199,23 @@ public class LoginActivity extends AppCompatActivity {
 
 
     @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(Intent.ACTION_MAIN) ;
+        intent.addCategory(Intent.CATEGORY_HOME) ;
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        callbackManager.onActivityResult(requestCode,resultCode,data) ;
+        super.onActivityResult(requestCode,resultCode,data);
+
+        if(callbackManager.onActivityResult(requestCode,resultCode,data))
+        {
+            return;
+        }
 
     }
 }

@@ -46,5 +46,6 @@
     <string name="title_section3">Section 3</string>
 
     <string name="action_example">Example action</string>
+    <string name="title_activity_radio">activity_radio</string>
 
 </resources>

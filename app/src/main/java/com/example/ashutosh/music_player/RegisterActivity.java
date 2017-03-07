@@ -69,6 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
                         {
                             JSONObject jsonObject = new JSONObject(response) ;
                             boolean success = jsonObject.getBoolean("success") ;
+                            String msg = jsonObject.getString("msg") ;
 
                             if(success)
                             {
@@ -78,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
                             else
                             {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this) ;
-                                builder.setMessage("Register Failed")
+                                builder.setMessage(msg)
                                         .setNegativeButton("Retry", null)
                                         .create()
                                         .show();
@@ -100,5 +101,10 @@ public class RegisterActivity extends AppCompatActivity {
 
 
 
+    }
+    @Override
+    public void onBackPressed()
+    {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }

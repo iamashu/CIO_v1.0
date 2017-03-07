@@ -1,13 +1,15 @@
 package com.example.ashutosh.music_player;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -16,6 +18,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
+import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 
@@ -40,17 +46,25 @@ public class Home extends AppCompatActivity {
     private ImageView dance  ;
     private ImageView motivation  ;
     private ImageView journey ;
+    ScrollView sc ;
+    private AnimatedCircleLoadingView animatedCircleLoadingView ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
-
-        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.boom);
-
+        animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
+        startLoading() ;
+        startPercentMockThread() ;
+        sc = (ScrollView) findViewById(R.id.scroll1) ;
         rv = (RecyclerView) findViewById(R.id.rview) ;
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setHasFixedSize(true);
+
+        sc.setVisibility(View.GONE);
+        BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.boom);
+
 
         loadRecyclerViewData() ;
 
@@ -110,28 +124,52 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        for(int i=0 ; i<bmb.getPiecePlaceEnum().pieceNumber() ; i++)
-        {
-            SimpleCircleButton.Builder builder = new SimpleCircleButton.Builder()
-                    .normalImageRes(R.drawable.ic_menu_gallery) ;
-            bmb.addBuilder(builder);
-        }
+        SimpleCircleButton.Builder builder = new SimpleCircleButton.Builder() ;
+        builder.normalImageRes(R.drawable.radio) ;
+        bmb.addBuilder(builder);
+        SimpleCircleButton.Builder builder1 = new SimpleCircleButton.Builder() ;
+        builder1.normalImageRes(R.drawable.power) ;
+        bmb.addBuilder(builder1);
+
+        builder.listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                startActivity(new Intent(getApplicationContext(), activity_radio.class));
+            }
+        }) ;
+
+        builder1.listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
+                if(accessToken != null)
+                {
+                    LoginManager.getInstance().logOut();
+                }
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            }
+        }) ;
+
     }
 
 
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(Intent.ACTION_MAIN) ;
+        intent.addCategory(Intent.CATEGORY_HOME) ;
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     private void loadRecyclerViewData()
     {
-        final ProgressDialog progressDialog = new ProgressDialog(this) ;
-        progressDialog.setMessage("Loading data...");
-        progressDialog.show();
-
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
                 URL_DATA,
                 new Response.Listener<String>() {
 
                     @Override
                     public void onResponse(String response) {
-                        progressDialog.dismiss();
                         try
                         {
                             Document document = Jsoup.parse(response) ;
@@ -153,6 +191,16 @@ public class Home extends AppCompatActivity {
 
                             adapter = new MyAdapter(arrayList,arrayList1,getApplicationContext()) ;
                             rv.setAdapter(adapter);
+                            animatedCircleLoadingView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    animatedCircleLoadingView.setVisibility(View.GONE);
+                                    FrameLayout fl = (FrameLayout) findViewById(R.id.lay) ;
+                                    fl.setBackgroundColor(Color.WHITE);
+                                    sc.setVisibility(View.VISIBLE);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
                         }
                         catch (Exception e)
                         {
@@ -164,13 +212,59 @@ public class Home extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.dismiss();
                         Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }) ;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this) ;
         requestQueue.add(stringRequest) ;
+
+    }
+
+    private void startLoading()
+    {
+        animatedCircleLoadingView.startDeterminate();
+    }
+
+    private void startPercentMockThread()
+    {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try
+                {
+                    Thread.sleep(1500);
+                    for (int i=0 ; i<=100 ; i++)
+                    {
+                        Thread.sleep(15);
+                        changePercent(i) ;
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        new Thread(runnable).start();
+    }
+
+    private void changePercent(final int percent)
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                animatedCircleLoadingView.setPercent(percent);
+            }
+        });
+    }
+
+    public void resetLoading()
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                animatedCircleLoadingView.resetLoading();
+            }
+        });
     }
 
 }

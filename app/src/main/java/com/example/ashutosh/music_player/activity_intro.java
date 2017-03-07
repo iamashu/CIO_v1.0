@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.facebook.AccessToken;
+
 
 public class activity_intro extends Activity {
 
@@ -23,12 +25,13 @@ public class activity_intro extends Activity {
     private int[] layouts;
     private Button btnSkip, btnNext;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_intro);
-
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
@@ -125,8 +128,7 @@ public class activity_intro extends Activity {
 
     private void launchHomeScreen()
     {
-        startActivity(new Intent(this, LoginActivity.class));
-       /* AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
+        AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
         if(accessToken != null)
         {
             startActivity(new Intent(this, Home.class));
@@ -135,7 +137,7 @@ public class activity_intro extends Activity {
         {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-        } */
+        }
     }
 
 
@@ -148,7 +150,8 @@ public class activity_intro extends Activity {
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(ViewGroup container, int position)
+        {
             layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             View view = layoutInflater.inflate(layouts[position], container, false);
@@ -158,18 +161,21 @@ public class activity_intro extends Activity {
         }
 
         @Override
-        public int getCount() {
+        public int getCount()
+        {
             return layouts.length;
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object obj) {
+        public boolean isViewFromObject(View view, Object obj)
+        {
             return view == obj;
         }
 
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(ViewGroup container, int position, Object object)
+        {
             View view = (View) object;
             container.removeView(view);
         }
