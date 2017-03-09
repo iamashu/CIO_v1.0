@@ -24,6 +24,8 @@ public class Track
         return mArtworkURL;
     }
 
+    public String getmTags() { return mTags; }
+
     @SerializedName("title")
     private String mTitle ;
 
@@ -35,4 +37,7 @@ public class Track
 
     @SerializedName("artwork_url")
     private String mArtworkURL ;
+
+    @SerializedName("tag_list")
+    private String mTags ;
 }

@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity android:name=".Player" />
-        <activity android:name=".Home" />
+        <activity android:name=".Home"></activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -26,16 +26,22 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".activity_intro">
+
+        </activity>
+        <activity android:name=".Main2Activity" />
+        <activity
+            android:name=".activity_radio"
+            android:label="@string/title_activity_radio" />
+        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".Recommended">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
-        <activity android:name=".Main2Activity" />
-        <activity
-            android:name=".activity_radio"
-            android:label="@string/title_activity_radio"></activity>
     </application>
 
 </manifest>

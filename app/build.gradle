@@ -48,8 +48,8 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.nightonke:boommenu:2.0.7'
-    testCompile 'junit:junit:4.12'
-    compile 'org.apache.mahout:mahout:0.12.2'
-    compile files('libs/mahout-core-0.9.jar')
     compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
+    compile 'com.android.support.constraint:constraint-layout:1.0.1'
+    compile 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
+    testCompile 'junit:junit:4.12'
 }

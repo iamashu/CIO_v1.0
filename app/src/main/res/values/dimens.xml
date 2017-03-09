@@ -26,5 +26,8 @@
          https://developer.android.com/design/patterns/navigation-drawer.html -->
     <dimen name="navigation_drawer_width">240dp</dimen>
 
+    <integer name="duration_bar">800</integer>
+    <integer name="duration_search">800</integer>
+
 
 </resources>

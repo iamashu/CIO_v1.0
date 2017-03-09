@@ -39,6 +39,8 @@ public class Main2Activity extends AppCompatActivity {
     private ImageView mforward ;
     private ImageView catView ;
     private Toolbar tb ;
+    public Track track ;
+    public static String str ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -93,7 +95,7 @@ public class Main2Activity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Track track = mListItems.get(position) ;
+                track = mListItems.get(position) ;
                 mSelectedTrackTitle.setText(track.getTitle());
                 Picasso.with(Main2Activity.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
 
@@ -123,10 +125,11 @@ public class Main2Activity extends AppCompatActivity {
         });
 
 
-/*        tb.setOnClickListener(new View.OnClickListener() {
+ /*       tb.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                str = track.getStreamURL() ;
                 Intent intent = new Intent(Main2Activity.this, Player.class) ;
                 startActivity(intent);
             }

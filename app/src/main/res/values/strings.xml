@@ -48,4 +48,8 @@
     <string name="action_example">Example action</string>
     <string name="title_activity_radio">activity_radio</string>
 
+    <string name="path_search">
+       M141,17 A9,9 0 1,1 142,16 L149,23
+    </string>
+
 </resources>

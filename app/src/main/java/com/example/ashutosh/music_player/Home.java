@@ -130,6 +130,9 @@ public class Home extends AppCompatActivity {
         SimpleCircleButton.Builder builder1 = new SimpleCircleButton.Builder() ;
         builder1.normalImageRes(R.drawable.power) ;
         bmb.addBuilder(builder1);
+        SimpleCircleButton.Builder builder2 = new SimpleCircleButton.Builder() ;
+        builder2.normalImageRes(R.drawable.recom) ;
+        bmb.addBuilder(builder2);
 
         builder.listener(new OnBMClickListener() {
             @Override
@@ -147,6 +150,12 @@ public class Home extends AppCompatActivity {
                     LoginManager.getInstance().logOut();
                 }
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            }
+        }) ;
+        builder2.listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                startActivity(new Intent(getApplicationContext(), SearchActivity.class));
             }
         }) ;
 

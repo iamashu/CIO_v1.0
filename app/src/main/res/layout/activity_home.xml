@@ -16,7 +16,7 @@
         android:layout_centerInParent = "true"
         app:mainColor="#ff9a00"
         app:secondaryColor="#BDBDBD"
-        app:textColor="@android:color/black"
+        app:textColor="@android:color/white"
         />
 
 
@@ -43,8 +43,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         app:bmb_buttonEnum="simpleCircle"
-        app:bmb_piecePlaceEnum="piecePlace_dot_2_1"
-        app:bmb_buttonPlaceEnum="buttonPlace_sc_2_1" />
+        app:bmb_piecePlaceEnum="piecePlace_dot_3_1"
+        app:bmb_buttonPlaceEnum="buttonPlace_sc_3_1" />
 
     <TextView
         android:layout_width="wrap_content"
