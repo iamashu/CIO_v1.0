@@ -3,6 +3,7 @@ package com.example.ashutosh.music_player;
 import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,6 +39,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -62,6 +64,9 @@ public class SearchActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build() ;
+        StrictMode.setThreadPolicy(policy);
 
         setContentView(R.layout.activity_search);
         iv = (ImageView) findViewById(R.id.search) ;
@@ -128,7 +133,7 @@ public class SearchActivity extends AppCompatActivity
                 s = text.getText().toString() ;
                 scService.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
                     @Override
-                    public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
+                    public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
                         if(response.isSuccessful())
                         {
                             List<Track> tracks = response.body() ;
@@ -156,6 +161,8 @@ public class SearchActivity extends AppCompatActivity
                 Track track = mListItems.get(position) ;
                 s = track.getID() ;
                 String t = track.getTitle() ;
+                String[] arr = t.split(" ") ;
+                t = arr[0] + " " + arr[1] + " " + arr[2] ;
                 try
                 {
                     if(!getITunesSongInfo(t,s))
@@ -190,29 +197,11 @@ public class SearchActivity extends AppCompatActivity
 
     }
 
-
-     private boolean getITunesSongInfo(String t, String s) throws IOException
-     {
-        final String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
-        final HttpURLConnection request ;
-         URL url = new URL(URLPath) ;
-         request = (HttpURLConnection) url.openConnection() ;
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    request.connect();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+    private boolean getITunesSongInfo(String t, String s) throws IOException {
+        String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
+        URL url = new URL(URLPath) ;
+        HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
+        request.connect();
 
         JsonParser jp = new JsonParser() ;
         JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
@@ -245,7 +234,7 @@ public class SearchActivity extends AppCompatActivity
         if(!artists.contains(a))
             artists.add(a) ;
 
-        if(!genres.contains(a))
+        if(!genres.contains(b))
             genres.add(b) ;
 
         return true ;

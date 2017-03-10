@@ -1,6 +1,7 @@
 package com.example.ashutosh.music_player;
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ListView;
@@ -11,14 +12,22 @@ import com.example.ashutosh.music_player.SoundCloud.SCService3;
 import com.example.ashutosh.music_player.SoundCloud.SCTrackAdapter;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -26,25 +35,35 @@ public class Recommended extends AppCompatActivity {
 
     private List<Track> mListItems ;
     private SCTrackAdapter mAdapter ;
+    public ArrayList<String> artists ;
+    public ArrayList<String> genres ;
+    public ArrayList<String> titles ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build() ;
+        StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.activity_recommended);
 
-        ArrayList<String> tags = //getIntent().getStringArrayListExtra("tagList") ;
-                 new ArrayList<String>() ;
+        artists = getIntent().getStringArrayListExtra("artist") ;
+        genres = getIntent().getStringArrayListExtra("genre") ;
+        titles = new ArrayList<String>() ;
 
-        ArrayList<String> artists = getIntent().getStringArrayListExtra("artist") ;
-        ArrayList<String> genres = getIntent().getStringArrayListExtra("genre") ;
-
-        Iterator i = artists.iterator() ;
-        while (i.hasNext())
-            System.out.println(i.next());
-
-        Iterator j = genres.iterator() ;
-        while (j.hasNext())
-            System.out.println(j.next());
+        try
+        {
+            getSongs();
+            Iterator i = titles.iterator() ;
+            while (i.hasNext())
+            {
+                System.out.println(i.next());
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
         mListItems = new ArrayList<Track>() ;
 
@@ -54,12 +73,6 @@ public class Recommended extends AppCompatActivity {
         mAdapter = new SCTrackAdapter(this,mListItems) ;
         listView.setAdapter(mAdapter);
 
-       /* Iterator i = tags.iterator() ;
-        while (i.hasNext())
-        {
-            System.out.println(i.next());
-        } */
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Config.API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -67,28 +80,50 @@ public class Recommended extends AppCompatActivity {
 
         final SCService3 scService = SoundCloud.getService3();
 
-        scService.getRecentTracks(tags).enqueue(new Callback<List<Track>>() {
-            @Override
-            public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
-                if(response.isSuccessful())
+
+    }
+
+
+    private void getSongs() throws IOException
+    {
+        for(String s : artists)
+        {
+            for(String t : genres)
+            {
+                String URLPath = "https://itunes.apple.com/search?term=" + s.replace(" " , "+") + t.replace(" " , "+")  ;
+                URL url = new URL(URLPath) ;
+                HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
+                request.connect();
+                JsonParser jp = new JsonParser() ;
+                JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
+                JsonObject rootJsonobj = root.getAsJsonObject() ;
+                JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
+                if(js.getAsInt() == 0)
                 {
-                    List<Track> tracks = response.body() ;
-                    loadTracks(tracks) ;
+                    break ;
                 }
                 else
                 {
-                    showMessage("Error code " + response.code()) ;
+                    JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
+                    int i = 5 ;
+                    int itunesIndex = 0 ;
+                    while(i != 0)
+                    {
+                        rootJsonobj = arr.get(0).getAsJsonObject() ;
+                        rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
+                        String a = rootJsonobj.get("trackName").toString().replace("\"","" ) ;
+                        titles.add(a) ;
+                        itunesIndex++ ;
+                        i-- ;
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<Track>> call, Throwable t) {
-                showMessage(" Network Error: " + t.getMessage()) ;
             }
-        });
-
+        }
 
     }
+
+
 
     private void loadTracks(List<Track> tracks)
     {
