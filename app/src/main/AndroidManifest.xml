@@ -32,14 +32,18 @@
         <activity
             android:name=".activity_radio"
             android:label="@string/title_activity_radio" />
-        <activity android:name=".SearchActivity"></activity>
-        <activity android:name=".Recommended">
+        <activity android:name=".SearchActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity android:name=".Recommended">
+
+
 
         </activity>
     </application>

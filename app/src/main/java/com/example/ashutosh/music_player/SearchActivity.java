@@ -20,8 +20,19 @@ import com.example.ashutosh.music_player.SoundCloud.SCService2;
 import com.example.ashutosh.music_player.SoundCloud.SCTrackAdapter;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.sdsmdg.tastytoast.TastyToast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,16 +56,14 @@ public class SearchActivity extends AppCompatActivity
     private boolean expanded = true;
     String s ;
     private ArrayList<String> al ;
-    private StringBuilder tags ;
-    private List<String> list ;
-
-
-
+    private ArrayList<String> artists ;
+    private ArrayList<String> genres ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_search);
         iv = (ImageView) findViewById(R.id.search) ;
         text = (TextView) findViewById(R.id.text1) ;
@@ -68,8 +77,8 @@ public class SearchActivity extends AppCompatActivity
         text.setAlpha(1f);
 
         al = new ArrayList<String>() ;
-        list = new ArrayList<String>() ;
-        tags = new StringBuilder("") ;
+        artists = new ArrayList<String>() ;
+        genres = new ArrayList<String>() ;
         mListItems = new ArrayList<Track>() ;
         final ListView listView = (ListView) findViewById(R.id.track_list_view) ;
         mAdapter = new SCTrackAdapter(this,mListItems) ;
@@ -147,44 +156,32 @@ public class SearchActivity extends AppCompatActivity
 
                 Track track = mListItems.get(position) ;
                 s = track.getID() ;
-                String t = track.getmTags() ;
-                System.out.println(t);
-                for(int i=0 ; i<t.length() ; i++)
+                String t = track.getTitle() ;
+                try
                 {
-                    while(t.charAt(i) != ' ' )
+                    if(!getITunesSongInfo(t,s))
+                        throw new Exception("Hello") ;
+                    if(al.contains(s))
                     {
-                        tags.append(t.charAt(i)) ;
-                        i++ ;
-                        if(i == t.length())
-                            break;
-                    }
-                    if(tags.indexOf("\"") == -1)
-                    {
-                        list.add("\"" + tags + "\"") ;
+                        al.remove(s) ;
+                        TastyToast.makeText(getApplicationContext(), "Song Removed !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
                     }
                     else
                     {
-                        list.add(tags.toString()) ;
+                        al.add(s) ;
+                        TastyToast.makeText(getApplicationContext(), "Song Added !", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS) ;
                     }
-                    tags = new StringBuilder("") ;
+                    if(al.size() == 5)
+                    {
+                        Intent intent = new Intent(SearchActivity.this, Recommended.class);
+                        intent.putStringArrayListExtra("artist", artists) ;
+                        intent.putStringArrayListExtra("genre", genres) ;
+                        startActivity(intent);
+                    }
                 }
-                System.out.println(t);
-
-                if(al.contains(s))
+                catch (Exception e)
                 {
-                    al.remove(s) ;
-                    TastyToast.makeText(getApplicationContext(), "Song Removed !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
-                }
-                else
-                {
-                    al.add(s) ;
-                    TastyToast.makeText(getApplicationContext(), "Song Added !", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS) ;
-                }
-                if(al.size() == 5)
-                {
-                    Intent intent = new Intent(SearchActivity.this, Recommended.class);
-                    intent.putStringArrayListExtra("tagList", (ArrayList<String>) list) ;
-                    startActivity(intent);
+                    e.printStackTrace();
                 }
             }
         });
@@ -193,6 +190,64 @@ public class SearchActivity extends AppCompatActivity
         iv.animate().translationX(0f).setDuration(duration).setInterpolator(interp) ;
 
     }
+
+    private boolean getITunesSongInfo(String t, String s) throws IOException {
+        final String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
+        final HttpURLConnection request ;
+        new Thread(new Runnable() {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    URL url = new URL(URLPath) ;
+                    request = (HttpURLConnection) url.openConnection() ;
+                    request.connect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
+        JsonParser jp = new JsonParser() ;
+        JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
+        JsonObject rootJsonobj = root.getAsJsonObject() ;
+        JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
+        if(js.getAsInt() == 0)
+        {
+            TastyToast.makeText(getApplicationContext(), "Song Not Found in SoundCloud Database !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
+            return false;
+        }
+        JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
+        ArrayList<String> artist = new ArrayList<String>() ;
+
+        try
+        {
+            rootJsonobj = arr.get(0).getAsJsonObject() ;
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            TastyToast.makeText(getApplicationContext(), "Song Not Found in SoundCloud Database !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
+            al.remove(s) ;
+        }
+
+        int itunesIndex = 0 ;
+
+        rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
+        String a = rootJsonobj.get("artistName").toString().replace("\"","" ) ;
+        String b = rootJsonobj.get("primaryGenreName").toString().replace("\"","") ;
+
+        if(!artists.contains(a))
+            artists.add(a) ;
+
+        if(!genres.contains(a))
+            genres.add(b) ;
+
+        return true ;
+
+    }
+
     public void animate(View view)
     {
         if(!expanded)

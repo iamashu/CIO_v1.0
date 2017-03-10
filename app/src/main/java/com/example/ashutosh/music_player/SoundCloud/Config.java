@@ -6,6 +6,6 @@ package com.example.ashutosh.music_player.SoundCloud;
 
 public class Config
 {
-    public static final String CLIENT_ID = "" ;
+    public static final String CLIENT_ID = "msuRjUVO0Sl4L4bb44SMVf093O360LBD" ;
     public static final String API_URL = "https://api.soundcloud.com/tracks/?client_id=" + Config.CLIENT_ID ;
 }

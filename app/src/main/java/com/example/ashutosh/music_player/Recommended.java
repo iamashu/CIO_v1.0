@@ -34,9 +34,17 @@ public class Recommended extends AppCompatActivity {
 
         ArrayList<String> tags = //getIntent().getStringArrayListExtra("tagList") ;
                  new ArrayList<String>() ;
-        //tags.add("arijit") ;
-        tags.add("romantic");
-        tags.add("sonu") ;
+
+        ArrayList<String> artists = getIntent().getStringArrayListExtra("artist") ;
+        ArrayList<String> genres = getIntent().getStringArrayListExtra("genre") ;
+
+        Iterator i = artists.iterator() ;
+        while (i.hasNext())
+            System.out.println(i.next());
+
+        Iterator j = genres.iterator() ;
+        while (j.hasNext())
+            System.out.println(j.next());
 
         mListItems = new ArrayList<Track>() ;
 
@@ -46,11 +54,11 @@ public class Recommended extends AppCompatActivity {
         mAdapter = new SCTrackAdapter(this,mListItems) ;
         listView.setAdapter(mAdapter);
 
-        Iterator i = tags.iterator() ;
+       /* Iterator i = tags.iterator() ;
         while (i.hasNext())
         {
             System.out.println(i.next());
-        }
+        } */
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Config.API_URL)
