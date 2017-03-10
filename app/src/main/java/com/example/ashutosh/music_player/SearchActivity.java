@@ -38,7 +38,6 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -129,7 +128,7 @@ public class SearchActivity extends AppCompatActivity
                 s = text.getText().toString() ;
                 scService.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
                     @Override
-                    public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
+                    public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
                         if(response.isSuccessful())
                         {
                             List<Track> tracks = response.body() ;
@@ -191,19 +190,24 @@ public class SearchActivity extends AppCompatActivity
 
     }
 
-    private boolean getITunesSongInfo(String t, String s) throws IOException {
+
+     private boolean getITunesSongInfo(String t, String s) throws IOException
+     {
         final String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
         final HttpURLConnection request ;
-        new Thread(new Runnable() {
+         URL url = new URL(URLPath) ;
+         request = (HttpURLConnection) url.openConnection() ;
+        new Thread(new Runnable()
+        {
             @Override
             public void run()
             {
                 try
                 {
-                    URL url = new URL(URLPath) ;
-                    request = (HttpURLConnection) url.openConnection() ;
                     request.connect();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     e.printStackTrace();
                 }
             }
