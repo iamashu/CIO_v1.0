@@ -51,5 +51,6 @@ dependencies {
     compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
     compile 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
+    compile 'com.github.florent37:materialtextfield:1.0.7'
     testCompile 'junit:junit:4.12'
 }

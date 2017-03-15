@@ -1,5 +1,6 @@
 package com.example.ashutosh.music_player;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -54,14 +54,10 @@ public class Recommended extends AppCompatActivity {
 
         try
         {
-            getSongs();
-            Iterator i = titles.iterator() ;
-            while (i.hasNext())
-            {
-                System.out.println(i.next());
-            }
+            Test test = new Test() ;
+            test.execute();
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -83,45 +79,68 @@ public class Recommended extends AppCompatActivity {
 
     }
 
-
-    private void getSongs() throws IOException
+    public class Test extends AsyncTask<Void, Void, Void>
     {
-        for(String s : artists)
-        {
-            for(String t : genres)
-            {
-                String URLPath = "https://itunes.apple.com/search?term=" + s.replace(" " , "+") + t.replace(" " , "+")  ;
-                URL url = new URL(URLPath) ;
-                HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
-                request.connect();
-                JsonParser jp = new JsonParser() ;
-                JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
-                JsonObject rootJsonobj = root.getAsJsonObject() ;
-                JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
-                if(js.getAsInt() == 0)
-                {
-                    break ;
-                }
-                else
-                {
-                    JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
-                    int i = 5 ;
-                    int itunesIndex = 0 ;
-                    while(i != 0)
-                    {
-                        rootJsonobj = arr.get(0).getAsJsonObject() ;
-                        rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
-                        String a = rootJsonobj.get("trackName").toString().replace("\"","" ) ;
-                        titles.add(a) ;
-                        itunesIndex++ ;
-                        i-- ;
-                    }
-                }
 
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            for(String s : artists)
+            {
+                for(String t : genres)
+                {
+                    String URLPath = "https://itunes.apple.com/search?term=" + s.replace(" " , "+") + t.replace(" " , "+")  ;
+                    URL url = null;
+                    try
+                    {
+                        url = new URL(URLPath);
+                        HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
+                        request.connect();
+                        JsonParser jp = new JsonParser() ;
+                        JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
+                        JsonObject rootJsonobj = root.getAsJsonObject() ;
+                        JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
+                        if(js.getAsInt() == 0)
+                        {
+                            break ;
+                        }
+                        else
+                        {
+                            JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
+                            int i = 5 ;
+                            int itunesIndex = 0 ;
+                            while(i != 0)
+                            {
+                                rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
+                                String a = rootJsonobj.get("trackName").toString().replace("\"","" ) ;
+                                if(! titles.contains(a))
+                                    titles.add(a) ;
+                                itunesIndex++ ;
+                                i-- ;
+                            }
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+            onPostExecute();
+            return null ;
+        }
+
+        protected void onPostExecute()
+        {
+            Iterator i = titles.iterator() ;
+            while (i.hasNext())
+            {
+                System.out.println(i.next());
             }
         }
 
     }
+
 
 
 
