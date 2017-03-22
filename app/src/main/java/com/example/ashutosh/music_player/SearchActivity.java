@@ -159,7 +159,7 @@ public class SearchActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Track track = mListItems.get(position) ;
-                s = track.getID() ;
+                System.out.println(track.getArtworkURL());
                 String t = track.getTitle() ;
                 String[] arr = t.split(" ") ;
                 t = arr[0] + " " + arr[1] + " " + arr[2] ;

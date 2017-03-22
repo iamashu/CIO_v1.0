@@ -12,7 +12,7 @@ import retrofit2.http.Query;
 
 public interface SCService3
 {
-    @GET("/tracks/?client_id=" + Config.CLIENT_ID)
-    Call<List<Track>> getRecentTracks(@Query("tags") List<String> s ) ;
+    @GET("/tracks/?client_id=" + Config.CLIENT_ID + "&limit=1")
+    Call<List<Track>> getRecentTracks(@Query("q") String tit) ;
 }
 

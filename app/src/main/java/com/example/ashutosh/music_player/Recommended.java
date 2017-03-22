@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -73,8 +76,6 @@ public class Recommended extends AppCompatActivity {
                 .baseUrl(Config.API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build() ;
-
-        final SCService3 scService = SoundCloud.getService3();
 
 
     }
@@ -132,10 +133,31 @@ public class Recommended extends AppCompatActivity {
 
         protected void onPostExecute()
         {
+            final SCService3 scService = SoundCloud.getService3();
             Iterator i = titles.iterator() ;
-            while (i.hasNext())
+            while(i.hasNext())
             {
-                System.out.println(i.next());
+                String s = i.next().toString() ;
+                System.out.println(s);
+                scService.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
+                    @Override
+                    public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
+                        if (response.isSuccessful())
+                        {
+                            List<Track> tracks = response.body();
+                            loadTracks(tracks);
+                        }
+                        else
+                        {
+                            showMessage("Error code " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Track>> call, Throwable t) {
+                        showMessage(" Network Error: " + t.getMessage());
+                    }
+                });
             }
         }
 
@@ -146,7 +168,6 @@ public class Recommended extends AppCompatActivity {
 
     private void loadTracks(List<Track> tracks)
     {
-        mListItems.clear();
         mListItems.addAll(tracks) ;
         mAdapter.notifyDataSetChanged();
     }
