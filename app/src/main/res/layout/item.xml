@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation = "vertical"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin"
+    android:layout_width="match_parent"
+    android:layout_height="10dp">
+
+    <ImageView
+        android:id="@+id/track_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerVertical="true"
+        android:padding="@dimen/image_padding" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:baselineAligned="true"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp">
+
+        <TextView
+            android:id="@+id/trackTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/activity_vertical_inner_margin"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="17dp" />
+
+        <TextView
+            android:id="@+id/artistTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/trackTextView"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/activity_vertical_inner_margin"
+            android:layout_marginTop="5dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="12dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

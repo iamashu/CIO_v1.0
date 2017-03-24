@@ -27,11 +27,7 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".activity_intro">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
         </activity>
         <activity android:name=".Main2Activity" />
@@ -39,6 +35,12 @@
             android:name=".activity_radio"
             android:label="@string/title_activity_radio" />
         <activity android:name=".SearchActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
         <activity android:name=".Recommended">

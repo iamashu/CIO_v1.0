@@ -1,24 +1,27 @@
 package com.example.ashutosh.music_player;
 
-import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.ashutosh.music_player.ITunes.Adapter.CustomAdapter;
+import com.example.ashutosh.music_player.ITunes.Model.Pojo;
 import com.example.ashutosh.music_player.SoundCloud.Config;
 import com.example.ashutosh.music_player.SoundCloud.SCService2;
-import com.example.ashutosh.music_player.SoundCloud.SCTrackAdapter;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
 import com.google.gson.JsonArray;
@@ -27,6 +30,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.sdsmdg.tastytoast.TastyToast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,16 +44,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SearchActivity extends AppCompatActivity
 {
     private List<Track> mListItems ;
-    private SCTrackAdapter mAdapter ;
+    private CustomAdapter mAdapter ;
     private ImageView iv ;
     private TextView text ;
     private AnimatedVectorDrawable searchToBar ;
@@ -59,16 +63,15 @@ public class SearchActivity extends AppCompatActivity
     private ArrayList<String> al ;
     private ArrayList<String> artists ;
     private ArrayList<String> genres ;
+    private ListView listView ;
+    private ArrayList<Pojo> pojoList = new ArrayList<Pojo>() ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build() ;
-        StrictMode.setThreadPolicy(policy);
-
         setContentView(R.layout.activity_search);
+        listView = (ListView) findViewById(R.id.track_list_view) ;
         iv = (ImageView) findViewById(R.id.search) ;
         text = (TextView) findViewById(R.id.text1) ;
         Button btn = (Button) findViewById(R.id.btn) ;
@@ -84,9 +87,9 @@ public class SearchActivity extends AppCompatActivity
         artists = new ArrayList<String>() ;
         genres = new ArrayList<String>() ;
         mListItems = new ArrayList<Track>() ;
-        final ListView listView = (ListView) findViewById(R.id.track_list_view) ;
-        mAdapter = new SCTrackAdapter(this,mListItems) ;
-        listView.setAdapter(mAdapter);
+     //   final ListView listView = (ListView) findViewById(R.id.track_list_view) ;
+        mAdapter = new CustomAdapter(this,R.layout.item, pojoList) ;
+     //   listView.setAdapter(mAdapter);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Config.API_URL)
@@ -131,29 +134,13 @@ public class SearchActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 s = text.getText().toString() ;
-                scService.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
-                    @Override
-                    public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
-                        if(response.isSuccessful())
-                        {
-                            List<Track> tracks = response.body() ;
-                            loadTracks(tracks) ;
-                        }
-                        else
-                        {
-                            showMessage("Error code " + response.code()) ;
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Track>> call, Throwable t) {
-                        showMessage(" Network Error: " + t.getMessage()) ;
-                    }
-                });
+                pojoList.clear();
+                mAdapter.notifyDataSetChanged();
+                getData(s);
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+     /*   listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -190,12 +177,54 @@ public class SearchActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
-        });
+        }); */
 
 
         iv.animate().translationX(0f).setDuration(duration).setInterpolator(interp) ;
 
     }
+
+    private void getData(String s) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://itunes.apple.com/search?term=" + s.replace(" ", "+");
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>()
+        {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray jsonArray = response.getJSONArray("results");
+
+                    for(int i = 0; i < jsonArray.length(); i++){
+                        Pojo pojo = new Pojo();
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        pojo.setArtistName(object.optString("artistName","Unknown"));
+                        pojo.setTrackName(object.optString("trackName","Unknown"));
+                        pojo.setCollectionName(object.optString("collectionName","Unknown"));
+                        pojo.setImageView(object.optString("artworkUrl100","Unknown"));
+                        pojoList.add(pojo);
+                        fillList();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }, new com.android.volley.Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+    public void fillList()
+    {
+        listView.setAdapter(mAdapter);
+    }
+
 
     private boolean getITunesSongInfo(String t, String s) throws IOException {
         String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
