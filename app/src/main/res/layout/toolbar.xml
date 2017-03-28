@@ -7,7 +7,7 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/bar_player"
-        android:background="#333333"
+        android:background="#5AC0B2"
         android:theme="@style/Theme.AppCompat.Dark.DarkActionBar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -22,6 +22,7 @@
             android:id="@+id/selected_track_title"
             android:paddingLeft="8dp"
             android:layout_width="220dp"
+            android:textColor="#ffffff"
             android:layout_height="wrap_content" />
 
         <ImageView

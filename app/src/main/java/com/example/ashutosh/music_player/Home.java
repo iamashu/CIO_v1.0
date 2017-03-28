@@ -2,6 +2,8 @@ package com.example.ashutosh.music_player;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -19,12 +22,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ashutosh.music_player.SoundCloud.Config;
+import com.example.ashutosh.music_player.SoundCloud.SCService3;
+import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
+import com.example.ashutosh.music_player.SoundCloud.Track;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
+import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,6 +41,12 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Home extends AppCompatActivity implements ItemClickListener {
 
@@ -41,6 +55,11 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     private MyAdapter adapter ;
     public ArrayList<String> arrayList ;
     public ArrayList<String> arrayList1 ;
+    private TextView mSelectedTrackTitle ;
+    private ImageView mSelectedTrackImage ;
+    private MediaPlayer mMediaPlayer ;
+    private ImageView mPlayerControl ;
+    private ImageView mforward ;
     private ImageView party  ;
     private ImageView love  ;
     private ImageView sad  ;
@@ -49,6 +68,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     private ImageView journey ;
     private Toolbar tb ;
     ScrollView sc ;
+    public  SCService3 scService3 ;
     private AnimatedCircleLoadingView animatedCircleLoadingView ;
 
     @Override
@@ -58,7 +78,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         setContentView(R.layout.activity_home);
         View vtb = findViewById(R.id.viewT2) ;
 
-        tb = (Toolbar) findViewById(R.id.bar_player) ;
+        tb = (Toolbar) vtb.findViewById(R.id.bar_player) ;
 
         tb.setVisibility(View.GONE);
 
@@ -71,6 +91,21 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setHasFixedSize(true);
 
+        mSelectedTrackTitle = (TextView) vtb.findViewById(R.id.selected_track_title) ;
+        mSelectedTrackImage = (ImageView) vtb.findViewById(R.id.selected_track_image) ;
+        mPlayerControl = (ImageView) vtb.findViewById(R.id.player_control) ;
+        mforward = (ImageView) vtb.findViewById(R.id.forward) ;
+
+        mPlayerControl.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                togglePlayPause();
+            }
+
+
+        });
+
         sc.setVisibility(View.GONE);
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.boom);
 
@@ -82,6 +117,40 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         adapter = new MyAdapter(arrayList,arrayList1,getApplicationContext()) ;
         rv.setAdapter(adapter);
         adapter.setClickListener(this);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Config.API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build() ;
+
+        scService3 = SoundCloud.getService3() ;
+
+        mMediaPlayer = new MediaPlayer() ;
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                togglePlayPause() ;
+            }
+        });
+
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mPlayerControl.setImageResource(R.drawable.ic_play);
+            }
+        });
+
+        mforward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediaPlayer.seekTo(mMediaPlayer.getCurrentPosition() + 30000);
+            }
+        });
+
+
 
         party = (ImageView) findViewById(R.id.iv1) ;
         love = (ImageView) findViewById(R.id.iv2) ;
@@ -174,6 +243,34 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             }
         }) ;
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+            }
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+    }
+
+    private void togglePlayPause()
+    {
+        if(mMediaPlayer.isPlaying())
+        {
+            mMediaPlayer.pause();
+            mPlayerControl.setImageResource(R.drawable.ic_play);
+        }
+        else
+        {
+            mMediaPlayer.start();
+            mPlayerControl.setImageResource(R.drawable.ic_pause);
+            mforward.setImageResource(R.drawable.forward3);
+        }
     }
 
 
@@ -289,7 +386,53 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     }
 
     @Override
-    public void onClick(View view, int position) {
-        
+    public void onClick(View view, final int position)
+    {
+        tb.setVisibility(View.VISIBLE);
+        scService3.getRecentTracks(arrayList.get(position)).enqueue(new Callback<List<Track>>() {
+            @Override
+            public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
+                if(response.isSuccessful())
+                {
+                    List<Track> tracks = response.body() ;
+                    Track track = tracks.get(0) ;
+                    mSelectedTrackTitle.setText(arrayList.get(position));
+                    Picasso.with(Home.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
+
+                    if(mMediaPlayer.isPlaying())
+                    {
+                        mMediaPlayer.stop();
+                        mMediaPlayer.reset();
+                    }
+
+                    try
+                    {
+                        tb.setVisibility(View.VISIBLE);
+                        mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
+                        mMediaPlayer.prepareAsync();
+
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    showMessage("Error code " + response.code()) ;
+                }
+            }
+
+
+            @Override
+            public void onFailure(Call<List<Track>> call, Throwable t) {
+                showMessage(" Network Error: " + t.getMessage()) ;
+            }
+        });
+    }
+
+    private void showMessage(String message)
+    {
+        Toast.makeText(Home.this, message,Toast.LENGTH_LONG).show();
     }
 }
