@@ -146,11 +146,17 @@
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat6"
                     android:layout_marginLeft="25dp"
-                    android:layout_gravity="right"/>
+                    android:layout_gravity="right"
+                    />
 
             </LinearLayout>
 
         </LinearLayout>
+
+
+
+
+
 
 
 
@@ -159,6 +165,12 @@
 
 </ScrollView>
 
-
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar"
+        android:id="@+id/viewT2"
+        android:layout_gravity = "bottom"
+        />
 
 </FrameLayout>

@@ -21,39 +21,12 @@
         android:overScrollHeader="@drawable/catv1"/>
 
 
+    <include
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar"
+        android:id="@+id/viewT"/>
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/bar_player"
-        android:background="#333333"
-        android:theme="@style/Theme.AppCompat.Dark.DarkActionBar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:contentInsetStart="0dp">
-
-        <ImageView
-            android:id="@+id/selected_track_image"
-            android:layout_width="50dp"
-            android:layout_height="55dp" />
-
-        <TextView
-            android:id="@+id/selected_track_title"
-            android:paddingLeft="8dp"
-            android:layout_width="220dp"
-            android:layout_height="wrap_content" />
-
-        <ImageView
-            android:id="@+id/forward"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginLeft="30dp"/>
-
-        <ImageView
-            android:id="@+id/player_control"
-            android:layout_gravity="right"
-            android:layout_width="@dimen/image_size"
-            android:layout_height="@dimen/image_size" />
-
-    </android.support.v7.widget.Toolbar>
 
 </LinearLayout>
 

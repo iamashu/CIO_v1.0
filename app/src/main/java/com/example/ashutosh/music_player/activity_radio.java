@@ -19,7 +19,7 @@ public class activity_radio extends AppCompatActivity {
     boolean prepared = false;
     boolean started = false;
 
-    String stream = "http://stream.radioreklama.bg:80/radio1rock128";
+    String stream = "www.youtube.com/embed/1YBl3Zbt80A";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

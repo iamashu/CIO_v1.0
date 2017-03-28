@@ -1,5 +1,6 @@
 package com.example.ashutosh.music_player;
 
+import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -24,23 +26,12 @@ import com.example.ashutosh.music_player.SoundCloud.Config;
 import com.example.ashutosh.music_player.SoundCloud.SCService2;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import com.sdsmdg.tastytoast.TastyToast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,44 +131,36 @@ public class SearchActivity extends AppCompatActivity
             }
         });
 
-     /*   listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Track track = mListItems.get(position) ;
-                System.out.println(track.getArtworkURL());
-                String t = track.getTitle() ;
-                String[] arr = t.split(" ") ;
-                t = arr[0] + " " + arr[1] + " " + arr[2] ;
-                try
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Pojo item = pojoList.get(position) ;
+                String t = item.getArtistName() ;
+                t = t.replace("," , "");
+                t = t.replace(" " , "+");
+                if(al.contains(t))
                 {
-                    if(!getITunesSongInfo(t,s))
-                        throw new Exception("Hello") ;
-                    if(al.contains(s))
-                    {
-                        al.remove(s) ;
-                        TastyToast.makeText(getApplicationContext(), "Song Removed !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
-                    }
-                    else
-                    {
-                        al.add(s) ;
-                        TastyToast.makeText(getApplicationContext(), "Song Added !", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS) ;
-                    }
-                    if(al.size() == 5)
-                    {
-                        Intent intent = new Intent(SearchActivity.this, Recommended.class);
-                        intent.putStringArrayListExtra("artist", artists) ;
-                        intent.putStringArrayListExtra("genre", genres) ;
-                        startActivity(intent);
-                    }
+                    artists.remove(t) ;
+                    al.remove(t) ;
+                    TastyToast.makeText(getApplicationContext(), "Song Removed !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
                 }
-                catch (Exception e)
+                else
                 {
-                    e.printStackTrace();
+                    if(!artists.contains(t))
+                        artists.add(t) ;
+                    al.add(t) ;
+                    TastyToast.makeText(getApplicationContext(), "Song Added !", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS) ;
+                }
+                if(al.size() == 5)
+                {
+                    Intent intent = new Intent(SearchActivity.this, Recommended.class);
+                    intent.putStringArrayListExtra("artist", artists) ;
+                    startActivity(intent);
                 }
             }
-        }); */
+        });
 
 
         iv.animate().translationX(0f).setDuration(duration).setInterpolator(interp) ;
@@ -225,50 +208,6 @@ public class SearchActivity extends AppCompatActivity
         listView.setAdapter(mAdapter);
     }
 
-
-    private boolean getITunesSongInfo(String t, String s) throws IOException {
-        String URLPath = "https://itunes.apple.com/search?term=" + t.replace(" " , "+") ;
-        URL url = new URL(URLPath) ;
-        HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
-        request.connect();
-
-        JsonParser jp = new JsonParser() ;
-        JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
-        JsonObject rootJsonobj = root.getAsJsonObject() ;
-        JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
-        if(js.getAsInt() == 0)
-        {
-            TastyToast.makeText(getApplicationContext(), "Song Not Found in SoundCloud Database !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
-            return false;
-        }
-        JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
-        ArrayList<String> artist = new ArrayList<String>() ;
-
-        try
-        {
-            rootJsonobj = arr.get(0).getAsJsonObject() ;
-        }
-        catch (IndexOutOfBoundsException e)
-        {
-            TastyToast.makeText(getApplicationContext(), "Song Not Found in SoundCloud Database !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
-            al.remove(s) ;
-        }
-
-        int itunesIndex = 0 ;
-
-        rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
-        String a = rootJsonobj.get("artistName").toString().replace("\"","" ) ;
-        String b = rootJsonobj.get("primaryGenreName").toString().replace("\"","") ;
-
-        if(!artists.contains(a))
-            artists.add(a) ;
-
-        if(!genres.contains(b))
-            genres.add(b) ;
-
-        return true ;
-
-    }
 
     public void animate(View view)
     {

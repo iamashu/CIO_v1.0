@@ -48,7 +48,10 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        tb = (Toolbar) findViewById(R.id.bar_player) ;
+        View testView = findViewById(R.id.viewT) ;
+
+        tb = (Toolbar) testView.findViewById(R.id.bar_player) ;
+        tb.setVisibility(View.GONE);
         catView = (ImageView) findViewById(R.id.catv) ;
         catView.getLayoutParams().height = 550 ;
 
@@ -107,8 +110,10 @@ public class Main2Activity extends AppCompatActivity {
 
                 try
                 {
+                    tb.setVisibility(View.VISIBLE);
                     mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
                     mMediaPlayer.prepareAsync();
+
                 }
                 catch (Exception e)
                 {

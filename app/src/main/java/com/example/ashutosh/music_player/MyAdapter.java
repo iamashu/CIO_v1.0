@@ -21,6 +21,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     ArrayList<String> list ;
     ArrayList<String> list1 ;
     private Context context ;
+    private ItemClickListener clickListener ;
 
     public MyAdapter(ArrayList<String> list, ArrayList<String> list1, Context context)
     {
@@ -37,21 +38,36 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tvHead.setText(list.get(position).toString());
         Picasso.with(context)
         .load(list1.get(position).toString())
         .fit()
         .centerCrop()
         .into(holder.tvImg);
+
+    /*    holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println(list.get(position).toString()) ;
+            }
+        }); */
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
         return list.size() ;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public void setClickListener(ItemClickListener itemClickListener)
+    {
+        this.clickListener = itemClickListener ;
+    }
+
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView tvHead ;
         public ImageView tvImg ;
@@ -62,6 +78,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
 
             tvHead = (TextView) v.findViewById(R.id.tvHead) ;
             tvImg = (ImageView) v.findViewById(R.id.tvImg) ;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v)
+        {
+            if(clickListener != null)
+                clickListener.onClick(v, getAdapterPosition());
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.ashutosh.music_player;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -8,39 +7,29 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.ashutosh.music_player.SoundCloud.Config;
-import com.example.ashutosh.music_player.SoundCloud.SCService3;
-import com.example.ashutosh.music_player.SoundCloud.SCTrackAdapter;
-import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
-import com.example.ashutosh.music_player.SoundCloud.Track;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.ashutosh.music_player.ITunes.Adapter.CustomAdapter;
+import com.example.ashutosh.music_player.ITunes.Model.Pojo;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collections;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-public class Recommended extends AppCompatActivity {
-
-    private List<Track> mListItems ;
-    private SCTrackAdapter mAdapter ;
+public class Recommended extends AppCompatActivity
+{
+    private CustomAdapter mAdapter ;
     public ArrayList<String> artists ;
     public ArrayList<String> genres ;
     public ArrayList<String> titles ;
+    private ListView listView ;
+    private ArrayList<Pojo> pojoList = new ArrayList<Pojo>() ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,125 +40,64 @@ public class Recommended extends AppCompatActivity {
 
         setContentView(R.layout.activity_recommended);
 
+        listView = (ListView) findViewById(R.id.track_list_view) ;
+
+        mAdapter = new CustomAdapter(this,R.layout.item, pojoList) ;
+
         artists = getIntent().getStringArrayListExtra("artist") ;
-        genres = getIntent().getStringArrayListExtra("genre") ;
-        titles = new ArrayList<String>() ;
-
-        try
-        {
-            Test test = new Test() ;
-            test.execute();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        mListItems = new ArrayList<Track>() ;
+      //  genres = getIntent().getStringArrayListExtra("genre") ;
+      //  titles = new ArrayList<String>() ;
 
         View view = findViewById(R.id.view1) ;
 
-        ListView listView = (ListView) view.findViewById(R.id.track_list_view) ;
-        mAdapter = new SCTrackAdapter(this,mListItems) ;
         listView.setAdapter(mAdapter);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Config.API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build() ;
-
-
+        getData();
     }
 
-    public class Test extends AsyncTask<Void, Void, Void>
-    {
-
-        @Override
-        protected Void doInBackground(Void... params)
+    private void getData() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        for(String s : artists)
         {
-            for(String s : artists)
+            String url = "http://itunes.apple.com/search?term=" + s + "&limit=4" ;
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>()
             {
-                for(String t : genres)
-                {
-                    String URLPath = "https://itunes.apple.com/search?term=" + s.replace(" " , "+") + t.replace(" " , "+")  ;
-                    URL url = null;
-                    try
-                    {
-                        url = new URL(URLPath);
-                        HttpURLConnection request = (HttpURLConnection) url.openConnection() ;
-                        request.connect();
-                        JsonParser jp = new JsonParser() ;
-                        JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent(), StandardCharsets.UTF_8)) ;
-                        JsonObject rootJsonobj = root.getAsJsonObject() ;
-                        JsonPrimitive js = rootJsonobj.getAsJsonPrimitive("resultCount") ;
-                        if(js.getAsInt() == 0)
-                        {
-                            break ;
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        JSONArray jsonArray = response.getJSONArray("results");
+
+                        for(int i = 0; i < jsonArray.length(); i++){
+                            Pojo pojo = new Pojo();
+                            JSONObject object = jsonArray.getJSONObject(i);
+                            pojo.setArtistName(object.optString("artistName","Unknown"));
+                            pojo.setTrackName(object.optString("trackName","Unknown"));
+                            pojo.setCollectionName(object.optString("collectionName","Unknown"));
+                            pojo.setImageView(object.optString("artworkUrl100","Unknown"));
+                            pojoList.add(pojo);
+                            fillList();
                         }
-                        else
-                        {
-                            JsonArray arr = rootJsonobj.getAsJsonArray("results") ;
-                            int i = 5 ;
-                            int itunesIndex = 0 ;
-                            while(i != 0)
-                            {
-                                rootJsonobj = arr.get(itunesIndex).getAsJsonObject() ;
-                                String a = rootJsonobj.get("trackName").toString().replace("\"","" ) ;
-                                if(! titles.contains(a))
-                                    titles.add(a) ;
-                                itunesIndex++ ;
-                                i-- ;
-                            }
-                        }
-                    }
-                    catch (Exception e) {
+                        Collections.shuffle(pojoList);
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                 }
-            }
-            onPostExecute();
-            return null ;
-        }
 
-        protected void onPostExecute()
-        {
-            final SCService3 scService = SoundCloud.getService3();
-            Iterator i = titles.iterator() ;
-            while(i.hasNext())
+            }, new com.android.volley.Response.ErrorListener()
             {
-                String s = i.next().toString() ;
-                System.out.println(s);
-                scService.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
-                    @Override
-                    public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
-                        if (response.isSuccessful())
-                        {
-                            List<Track> tracks = response.body();
-                            loadTracks(tracks);
-                        }
-                        else
-                        {
-                            showMessage("Error code " + response.code());
-                        }
-                    }
+                @Override
+                public void onErrorResponse(VolleyError error) {
 
-                    @Override
-                    public void onFailure(Call<List<Track>> call, Throwable t) {
-                        showMessage(" Network Error: " + t.getMessage());
-                    }
-                });
-            }
+                }
+            });
+            queue.add(jsonObjectRequest);
         }
-
     }
 
-
-
-
-    private void loadTracks(List<Track> tracks)
+    public void fillList()
     {
-        mListItems.addAll(tracks) ;
-        mAdapter.notifyDataSetChanged();
+        listView.setAdapter(mAdapter);
     }
 
     private void showMessage(String message)

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -33,19 +34,20 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements ItemClickListener {
 
     private static final String URL_DATA = "http://www.radiomirchi.com/more/mirchi-top-20" ;
     private RecyclerView rv ;
-    private RecyclerView.Adapter adapter ;
-    ArrayList<String> arrayList ;
-    ArrayList<String> arrayList1 ;
+    private MyAdapter adapter ;
+    public ArrayList<String> arrayList ;
+    public ArrayList<String> arrayList1 ;
     private ImageView party  ;
     private ImageView love  ;
     private ImageView sad  ;
     private ImageView dance  ;
     private ImageView motivation  ;
     private ImageView journey ;
+    private Toolbar tb ;
     ScrollView sc ;
     private AnimatedCircleLoadingView animatedCircleLoadingView ;
 
@@ -54,6 +56,13 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_home);
+        View vtb = findViewById(R.id.viewT2) ;
+
+        tb = (Toolbar) findViewById(R.id.bar_player) ;
+
+        tb.setVisibility(View.GONE);
+
+
         animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
         startLoading() ;
         startPercentMockThread() ;
@@ -65,8 +74,14 @@ public class Home extends AppCompatActivity {
         sc.setVisibility(View.GONE);
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.boom);
 
+        arrayList = new ArrayList<String>() ;
+        arrayList1 = new ArrayList<String>() ;
 
         loadRecyclerViewData() ;
+
+        adapter = new MyAdapter(arrayList,arrayList1,getApplicationContext()) ;
+        rv.setAdapter(adapter);
+        adapter.setClickListener(this);
 
         party = (ImageView) findViewById(R.id.iv1) ;
         love = (ImageView) findViewById(R.id.iv2) ;
@@ -184,8 +199,6 @@ public class Home extends AppCompatActivity {
                             Document document = Jsoup.parse(response) ;
                             Elements arr1 = document.getElementsByTag("h2") ;
                             Elements arr2 = document.select("div.movieImg img") ;
-                            arrayList = new ArrayList<String>() ;
-                            arrayList1 = new ArrayList<String>() ;
                             Iterator i1 = arr1.listIterator() ;
 
                             while(i1.hasNext())
@@ -198,8 +211,7 @@ public class Home extends AppCompatActivity {
                                     arrayList1.add(s) ;
                             }
 
-                            adapter = new MyAdapter(arrayList,arrayList1,getApplicationContext()) ;
-                            rv.setAdapter(adapter);
+
                             animatedCircleLoadingView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -276,4 +288,8 @@ public class Home extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onClick(View view, int position) {
+        
+    }
 }
