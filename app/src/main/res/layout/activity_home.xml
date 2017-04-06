@@ -7,17 +7,18 @@
     android:background="#65828e"
     android:id="@+id/lay">
 
-    <com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView
-        android:layout_marginTop="120dp"
-        android:id="@+id/circle_loading_view"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:background="#65828e"
-        android:layout_centerInParent = "true"
-        app:mainColor="#ff9a00"
-        app:secondaryColor="#BDBDBD"
-        app:textColor="@android:color/white"
-        />
+        <com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView
+            android:layout_marginTop="120dp"
+            android:id="@+id/circle_loading_view"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:background="#65828e"
+            android:layout_centerInParent = "true"
+            app:mainColor="#ff9a00"
+            app:secondaryColor="#BDBDBD"
+            app:textColor="@android:color/white"
+            />
+
 
 
 <ScrollView
@@ -36,21 +37,31 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.ashutosh.music_player.Home">
 
+        <com.nightonke.boommenu.BoomMenuButton
+            android:id="@+id/boom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            app:bmb_buttonEnum="simpleCircle"
+            app:bmb_normalColor="@color/com_facebook_button_background_color"
+            app:bmb_piecePlaceEnum="piecePlace_dot_3_1"
+            app:bmb_buttonPlaceEnum="buttonPlace_sc_3_1" />
 
-    <com.nightonke.boommenu.BoomMenuButton
-        android:id="@+id/boom"
+    <ImageView
+        android:id="@+id/ic_s"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        app:bmb_buttonEnum="simpleCircle"
-        app:bmb_piecePlaceEnum="piecePlace_dot_3_1"
-        app:bmb_buttonPlaceEnum="buttonPlace_sc_3_1" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="2dp"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|center_vertical"
+        app:srcCompat="@drawable/ic_search" />
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/boom"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:text="@string/Top_20"
         android:textColor="@android:color/black"
         android:textSize="23sp"
@@ -92,6 +103,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat3"
+                    android:paddingLeft="10dp"
+                    android:layout_marginRight="5dp"
                     android:layout_gravity="left"/>
 
                 <ImageView
@@ -99,7 +112,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat2"
-                    android:layout_marginLeft="25dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_gravity="right"/>
 
             </LinearLayout>
@@ -115,6 +128,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat4"
+                    android:layout_marginRight="5dp"
+                    android:paddingLeft="10dp"
                     android:layout_gravity="left"/>
 
                 <ImageView
@@ -122,7 +137,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat1"
-                    android:layout_marginLeft="25dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_gravity="right"/>
 
             </LinearLayout>
@@ -137,7 +152,9 @@
                     android:id="@+id/iv5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
                     app:srcCompat="@drawable/muscat5"
+                    android:layout_marginRight="5dp"
                     android:layout_gravity="left"/>
 
                 <ImageView
@@ -145,13 +162,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat6"
-                    android:layout_marginLeft="25dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_gravity="right"
                     />
 
             </LinearLayout>
 
         </LinearLayout>
+
 
 
 </RelativeLayout>

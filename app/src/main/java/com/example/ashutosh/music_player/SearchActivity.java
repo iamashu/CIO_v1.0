@@ -1,9 +1,11 @@
 package com.example.ashutosh.music_player;
 
-import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -24,9 +27,11 @@ import com.example.ashutosh.music_player.ITunes.Adapter.CustomAdapter;
 import com.example.ashutosh.music_player.ITunes.Model.Pojo;
 import com.example.ashutosh.music_player.SoundCloud.Config;
 import com.example.ashutosh.music_player.SoundCloud.SCService2;
+import com.example.ashutosh.music_player.SoundCloud.SCService3;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
-import com.sdsmdg.tastytoast.TastyToast;
+import com.facebook.AccessToken;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +40,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -47,6 +54,13 @@ public class SearchActivity extends AppCompatActivity
     private AnimatedVectorDrawable searchToBar ;
     private AnimatedVectorDrawable barToSearch ;
     private Interpolator interp ;
+    private TextView mSelectedTrackTitle ;
+    private ImageView mSelectedTrackImage ;
+    private MediaPlayer mMediaPlayer ;
+    private ImageView mPlayerControl ;
+    private ImageView mforward ;
+    public SCService3 scService3 ;
+    private Toolbar tb ;
     private int duration ;
     private float offset ;
     private boolean expanded = true;
@@ -62,6 +76,60 @@ public class SearchActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        View vtb = findViewById(R.id.viewT4) ;
+        tb = (Toolbar) vtb.findViewById(R.id.bar_player) ;
+        tb.setVisibility(View.GONE);
+
+        mSelectedTrackTitle = (TextView) vtb.findViewById(R.id.selected_track_title) ;
+        mSelectedTrackImage = (ImageView) vtb.findViewById(R.id.selected_track_image) ;
+        mPlayerControl = (ImageView) vtb.findViewById(R.id.player_control) ;
+        mforward = (ImageView) vtb.findViewById(R.id.forward) ;
+
+        mPlayerControl.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                togglePlayPause();
+            }
+
+
+        });
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Config.API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build() ;
+
+        scService3 = SoundCloud.getService3() ;
+
+        mMediaPlayer = new MediaPlayer() ;
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                togglePlayPause() ;
+            }
+        });
+
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mPlayerControl.setImageResource(R.drawable.ic_play);
+            }
+        });
+
+        mforward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediaPlayer.seekTo(mMediaPlayer.getCurrentPosition() + 30000);
+            }
+        });
+
+
+
         listView = (ListView) findViewById(R.id.track_list_view) ;
         iv = (ImageView) findViewById(R.id.search) ;
         text = (TextView) findViewById(R.id.text1) ;
@@ -82,10 +150,6 @@ public class SearchActivity extends AppCompatActivity
         mAdapter = new CustomAdapter(this,R.layout.item, pojoList) ;
      //   listView.setAdapter(mAdapter);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Config.API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build() ;
 
         final SCService2 scService = SoundCloud.getService2();
 
@@ -124,6 +188,21 @@ public class SearchActivity extends AppCompatActivity
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+           /*     try
+                {
+                    FileInputStream fin = openFileInput("userdata") ;
+                    int c ;
+                    String temp = "" ;
+                    while( (c = fin.read()) != -1)
+                    {
+                        temp = temp + Character.toString((char) c) ;
+                    }
+                    System.out.println(temp);
+                    fin.close() ;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }*/
                 s = text.getText().toString() ;
                 pojoList.clear();
                 mAdapter.notifyDataSetChanged();
@@ -131,12 +210,13 @@ public class SearchActivity extends AppCompatActivity
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Pojo item = pojoList.get(position) ;
+
+                   Pojo item = pojoList.get(position) ;
                 String t = item.getArtistName() ;
                 t = t.replace("," , "");
                 t = t.replace(" " , "+");
@@ -159,12 +239,132 @@ public class SearchActivity extends AppCompatActivity
                     intent.putStringArrayListExtra("artist", artists) ;
                     startActivity(intent);
                 }
+
             }
-        });
+        }); */
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id)
+            {
+                final String s = pojoList.get(position).getTrackName() ;
+                final String artist = pojoList.get(position).getArtistName() ;
+                AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
+                final String email =  accessToken.getUserId() ;
+
+                Response.Listener<String> responseListener = new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response)
+                    {
+                        try
+                        {
+                            JSONObject jsonObject = new JSONObject(response) ;
+                            boolean success = jsonObject.getBoolean("success") ;
+                            if(success)
+                            {
+                                System.out.println("Successful");
+                            }
+                            else
+                            {
+                                System.out.println("Not Successful");
+                            }
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                } ;
+
+                SongPushRequest songPushRequest = new SongPushRequest(artist, email, responseListener) ;
+                RequestQueue queue = Volley.newRequestQueue(SearchActivity.this) ;
+                queue.add(songPushRequest) ;
+
+            /*    try
+                {
+                    FileOutputStream fos = openFileOutput("userdata", MODE_APPEND) ;
+                    String t = pojoList.get(position).getArtistName() + " " ;
+                    fos.write(t.getBytes());
+                    fos.close();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                } */
+                scService3.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
+                    @Override
+                    public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
+                        if(response.isSuccessful())
+                        {
+                            List<Track> tracks = response.body() ;
+                            Track track = tracks.get(0) ;
+                            mSelectedTrackTitle.setText(s);
+                            Picasso.with(SearchActivity.this).load(pojoList.get(position).getImageView()).into(mSelectedTrackImage);
+
+                            if(mMediaPlayer.isPlaying())
+                            {
+                                mMediaPlayer.stop();
+                                mMediaPlayer.reset();
+                            }
+
+                            try
+                            {
+                                tb.setVisibility(View.VISIBLE);
+                                mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
+                                mMediaPlayer.prepareAsync();
+
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+                        else
+                        {
+                            showMessage("Error code " + response.code()) ;
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Track>> call, Throwable t) {
+
+                    }
+                }) ;
+            }
+        }) ;
 
 
         iv.animate().translationX(0f).setDuration(duration).setInterpolator(interp) ;
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+            }
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+    }
+
+    private void togglePlayPause()
+    {
+        if(mMediaPlayer.isPlaying())
+        {
+            mMediaPlayer.pause();
+            mPlayerControl.setImageResource(R.drawable.ic_play);
+        }
+        else
+        {
+            mMediaPlayer.start();
+            mPlayerControl.setImageResource(R.drawable.ic_pause);
+            mforward.setImageResource(R.drawable.forward3);
+        }
     }
 
     private void getData(String s) {

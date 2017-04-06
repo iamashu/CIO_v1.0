@@ -66,6 +66,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     private ImageView dance  ;
     private ImageView motivation  ;
     private ImageView journey ;
+    private ImageView isearch ;
     private Toolbar tb ;
     ScrollView sc ;
     public  SCService3 scService3 ;
@@ -95,6 +96,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         mSelectedTrackImage = (ImageView) vtb.findViewById(R.id.selected_track_image) ;
         mPlayerControl = (ImageView) vtb.findViewById(R.id.player_control) ;
         mforward = (ImageView) vtb.findViewById(R.id.forward) ;
+        isearch = (ImageView) findViewById(R.id.ic_s) ;
 
         mPlayerControl.setOnClickListener(new View.OnClickListener() {
 
@@ -242,6 +244,13 @@ public class Home extends AppCompatActivity implements ItemClickListener {
                 startActivity(new Intent(getApplicationContext(), SearchActivity.class));
             }
         }) ;
+
+        isearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Home.this, SearchActivity.class));
+            }
+        });
 
     }
 

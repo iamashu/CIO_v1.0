@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
     LoginButton loginButton ;
     CallbackManager callbackManager ;
-    private String facebook_id, full_name, email_id ;
+    public String facebook_id, full_name, email_id ;
     ProgressDialog progress ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
