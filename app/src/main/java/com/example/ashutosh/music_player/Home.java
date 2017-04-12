@@ -241,7 +241,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         builder2.listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+                startActivity(new Intent(getApplicationContext(), Recommended.class));
             }
         }) ;
 

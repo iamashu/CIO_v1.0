@@ -12,12 +12,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.ashutosh.music_player.SoundCloud.Config;
 import com.example.ashutosh.music_player.SoundCloud.SCService;
 import com.example.ashutosh.music_player.SoundCloud.SCTrackAdapter;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
+import com.facebook.AccessToken;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +50,7 @@ public class Main2Activity extends AppCompatActivity {
     private ImageView catView ;
     private Toolbar tb ;
     public Track track ;
+    public String t ;
     public static String str ;
 
     @Override
@@ -99,25 +110,55 @@ public class Main2Activity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 track = mListItems.get(position) ;
-                mSelectedTrackTitle.setText(track.getTitle());
-                Picasso.with(Main2Activity.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
-
-                if(mMediaPlayer.isPlaying())
+                String artist = track.getTitle() ;
+                int a = artist.indexOf("-")  ;
+                int b = artist.indexOf("|")  ;
+                int c = artist.indexOf("(")  ;
+                int d = (Math.min(Math.min(a,b),c)) ;
+                if(d != -1)
                 {
-                    mMediaPlayer.stop();
-                    mMediaPlayer.reset();
+                    artist = artist.substring(0,d) ;
                 }
-
-                try
+                t = getData(artist);
+                if(t == "null")
                 {
-                    tb.setVisibility(View.VISIBLE);
-                    mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
-                    mMediaPlayer.prepareAsync();
-
+                    return ;
                 }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
+                else {
+                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                    final String email = accessToken.getUserId();
+                    mSelectedTrackTitle.setText(track.getTitle());
+                    Picasso.with(Main2Activity.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
+
+                    if (mMediaPlayer.isPlaying()) {
+                        mMediaPlayer.stop();
+                        mMediaPlayer.reset();
+                    }
+
+                    try {
+                        tb.setVisibility(View.VISIBLE);
+                        mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
+                        mMediaPlayer.prepareAsync();
+
+                        com.android.volley.Response.Listener<String> responseListener = new com.android.volley.Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    boolean success = jsonObject.getBoolean("success");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+
+                        SongPushRequest songPushRequest = new SongPushRequest(t, email, responseListener);
+                        RequestQueue queue = Volley.newRequestQueue(Main2Activity.this);
+                        queue.add(songPushRequest);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -237,4 +278,38 @@ public class Main2Activity extends AppCompatActivity {
     {
         Toast.makeText(Main2Activity.this, message,Toast.LENGTH_LONG).show();
     }
+
+    private String getData(String s)
+    {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://itunes.apple.com/search?term=" + s.replace(" ", "+");
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>()
+        {
+            @Override
+            public void onResponse(JSONObject response) {
+                try
+                {
+                    JSONArray jsonArray = response.getJSONArray("results");
+                    if(jsonArray.length() != 0)
+                    {
+                        JSONObject object = jsonArray.getJSONObject(0);
+                        t = (object.optString("artistName", "Unknown"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }, new com.android.volley.Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(jsonObjectRequest);
+        return t ;
+    }
+
 }

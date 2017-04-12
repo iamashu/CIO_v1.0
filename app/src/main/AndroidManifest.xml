@@ -46,8 +46,6 @@
         </activity>
         <activity android:name=".Recommended">
 
-
-
         </activity>
     </application>
 

@@ -281,17 +281,6 @@ public class SearchActivity extends AppCompatActivity
                 RequestQueue queue = Volley.newRequestQueue(SearchActivity.this) ;
                 queue.add(songPushRequest) ;
 
-            /*    try
-                {
-                    FileOutputStream fos = openFileOutput("userdata", MODE_APPEND) ;
-                    String t = pojoList.get(position).getArtistName() + " " ;
-                    fos.write(t.getBytes());
-                    fos.close();
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                } */
                 scService3.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
                     @Override
                     public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {

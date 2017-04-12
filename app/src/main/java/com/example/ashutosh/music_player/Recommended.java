@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -23,6 +24,7 @@ import com.example.ashutosh.music_player.SoundCloud.Config;
 import com.example.ashutosh.music_player.SoundCloud.SCService3;
 import com.example.ashutosh.music_player.SoundCloud.SoundCloud;
 import com.example.ashutosh.music_player.SoundCloud.Track;
+import com.facebook.AccessToken;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -67,9 +69,48 @@ public class Recommended extends AppCompatActivity
         View v1 = findViewById(R.id.view1) ;
         listView = (ListView) v1.findViewById(R.id.track_list_view) ;
         mAdapter = new CustomAdapter(this,R.layout.item, pojoList) ;
-        artists = getIntent().getStringArrayListExtra("artist") ;
+        artists = new ArrayList<String>() ;
 
+        AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
+        final String email =  accessToken.getUserId() ;
 
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONArray array = new JSONArray(response);
+                    for(int i=0; i < array.length(); i++)
+                    {
+                        JSONObject jsonobject = array.getJSONObject(i);
+                        artists.add(jsonobject.getString("artist").replace(" ", "+").replace(",","").replace("&",""));
+                    }
+                        if(artists.size() == 1) {
+                            getData(10);
+                        }
+                        else if(artists.size() > 1 && artists.size() <= 6)
+                        {
+                            getData(5);
+                        }
+                        else if(artists.size() > 7 && artists.size() <= 10)
+                        {
+                            getData(4);
+                        }
+                        else
+                        {
+                            getData(2);
+                        }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            ;
+        };
+
+        SongGetRequest songGetRequest = new SongGetRequest(email, responseListener) ;
+        RequestQueue queue = Volley.newRequestQueue(Recommended.this) ;
+        queue.add(songGetRequest) ;
 
         mSelectedTrackTitle = (TextView) vtb.findViewById(R.id.selected_track_title) ;
         mSelectedTrackImage = (ImageView) vtb.findViewById(R.id.selected_track_image) ;
@@ -132,6 +173,10 @@ public class Recommended extends AppCompatActivity
                         if(response.isSuccessful())
                         {
                             List<Track> tracks = response.body() ;
+                            if(tracks.size() == 0)
+                            {
+                                return ;
+                            }
                             Track track = tracks.get(0) ;
                             mSelectedTrackTitle.setText(s);
                             Picasso.with(Recommended.this).load(pojoList.get(position).getImageView()).into(mSelectedTrackImage);
@@ -170,7 +215,6 @@ public class Recommended extends AppCompatActivity
 
         listView.setAdapter(mAdapter);
 
-        getData();
     }
 
     @Override
@@ -202,11 +246,12 @@ public class Recommended extends AppCompatActivity
     }
 
 
-    private void getData() {
+    private void getData(int size)
+    {
         RequestQueue queue = Volley.newRequestQueue(this);
         for(String s : artists)
         {
-            String url = "http://itunes.apple.com/search?term=" + s + "&limit=4" ;
+            String url = "http://itunes.apple.com/search?term=" + s + "&limit=" + size ;
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>()
             {
                 @Override
@@ -214,11 +259,13 @@ public class Recommended extends AppCompatActivity
                     try {
                         JSONArray jsonArray = response.getJSONArray("results");
 
+
                         for(int i = 0; i < jsonArray.length(); i++){
                             Pojo pojo = new Pojo();
                             JSONObject object = jsonArray.getJSONObject(i);
                             pojo.setArtistName(object.optString("artistName","Unknown"));
                             pojo.setTrackName(object.optString("trackName","Unknown"));
+                            System.out.println(object.optString("trackName" + "\n \n "));
                             pojo.setCollectionName(object.optString("collectionName","Unknown"));
                             pojo.setImageView(object.optString("artworkUrl100","Unknown"));
                             pojoList.add(pojo);
