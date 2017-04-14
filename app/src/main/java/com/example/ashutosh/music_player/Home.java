@@ -57,8 +57,8 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     public ArrayList<String> arrayList1 ;
     private TextView mSelectedTrackTitle ;
     private ImageView mSelectedTrackImage ;
-    private MediaPlayer mMediaPlayer ;
-    private ImageView mPlayerControl ;
+    public static MediaPlayer mMediaPlayer ;
+    public static ImageView mPlayerControl ;
     private ImageView mforward ;
     private ImageView party  ;
     private ImageView love  ;

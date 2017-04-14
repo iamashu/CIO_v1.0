@@ -1,26 +1,24 @@
 package com.example.ashutosh.music_player;
 
-import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
-import com.example.ashutosh.music_player.SoundCloud.Config;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import com.squareup.picasso.Picasso;
 
 public class Player extends AppCompatActivity {
 
-    static MediaPlayer mp ;
-    ArrayList<File> mySongs ;
-    int position ;
-    Uri u ;
     SeekBar sb ;
+    private String img, title, artist ;
+    private ImageView imv ;
+    private TextView tv ;
+    private TextView arti ;
+    private String duration ;
+    private ImageView pr,pp,pf ;
+    private TextView tim1, tim2 ;
     Thread updateSeekBar ;
 
     @Override
@@ -28,60 +26,72 @@ public class Player extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        sb = (SeekBar) findViewById(R.id.sb) ;
+        imv = (ImageView) findViewById(R.id.imv) ;
+        tv = (TextView) findViewById(R.id.tvt) ;
+        arti = (TextView) findViewById(R.id.tva) ;
+        pr = (ImageView) findViewById(R.id.pr) ;
+        pp = (ImageView) findViewById(R.id.pp) ;
+        pf = (ImageView) findViewById(R.id.pf) ;
+        tim1 = (TextView) findViewById(R.id.tim1) ;
+        tim2 = (TextView) findViewById(R.id.tim2) ;
 
-        try
+        pr.setImageResource(R.drawable.rewind);
+        pp.setImageResource(R.drawable.pause_w);
+        pf.setImageResource(R.drawable.forward);
+
+        final SeekBar sb = (SeekBar) findViewById(R.id.sb) ;
+        sb.setProgress(0);
+        Bundle extras = getIntent().getExtras() ;
+        if(extras != null)
         {
-            mp = new MediaPlayer() ;
-            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mp.setDataSource(Main2Activity.str  + "?client_id=" + Config.CLIENT_ID);
-            mp.prepareAsync();
-            mp.start();
-            sb.setMax(mp.getDuration()) ;
-            System.out.println(Main2Activity.str);
-   /*         updateSeekBar = new Thread() {
-                @Override
-                public void run() {
-                    int totalDuration = mp.getDuration() ;
-                    int currentPosition = 0 ;
-                    while(currentPosition < totalDuration)
-                    {
-                        try {
-                            sleep(500);
-                            currentPosition = mp.getCurrentPosition() ;
-                            sb.setProgress(currentPosition);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+            img = extras.getString("img_url") ;
+            title = extras.getString("title") ;
+            artist = extras.getString("arti") ;
+            duration = extras.getString("tim") ;
+        }
+        img = img.replace("100x100", "512x512") ;
+        tv.setText(title);
+        arti.setText(artist);
 
+        updateSeekBar = new Thread() {
+            @Override
+            public void run() {
+                sb.setProgress(0);
+                tim1.setText("0:00");
+                tim2.setText(duration);
+                int totalDuration = SearchActivity.mMediaPlayer.getDuration() ;
+                int currentPosition = 0 ;
+                sb.setMax(totalDuration);
+                while(currentPosition < totalDuration)
+                {
+                    try {
+                        sleep(500) ;
+                        currentPosition = SearchActivity.mMediaPlayer.getCurrentPosition() ;
+                        sb.setProgress(currentPosition);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    //super.run();
                 }
-            };
-
-            updateSeekBar.start(); */
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
-        if(mp != null)
-        {
-            mp.stop();
-            mp.release();
-        }
-
-        Intent i = getIntent() ;
-        Bundle b = i.getExtras() ;
-
-
+            }
+        } ;
+        updateSeekBar.start();
 
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                int minutes = (int) Math.floor(progress/60000) ;
+                String t = String.valueOf((int)(progress % 60000)/1000) ;
+                int seconds = Integer.parseInt(t) ;
+                String a = minutes + ":" ;
+                if(seconds < 10)
+                {
+                    a = a + '0' + seconds ;
+                }
+                else
+                {
+                    a = a + seconds ;
+                }
+                tim1.setText(a);
             }
 
             @Override
@@ -91,11 +101,40 @@ public class Player extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mp.seekTo(seekBar.getProgress());
+                SearchActivity.mMediaPlayer.seekTo(seekBar.getProgress());
+            }
+        });
+        Picasso.with(Player.this).load(img).into(imv);
+
+        pr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchActivity.mMediaPlayer.seekTo(SearchActivity.mMediaPlayer.getCurrentPosition() - 30000);
             }
         });
 
+        pp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(SearchActivity.mMediaPlayer.isPlaying())
+                {
+                    SearchActivity.mMediaPlayer.pause();
+                    pp.setImageResource(R.drawable.play_w);
+                }
+                else
+                {
+                    SearchActivity.mMediaPlayer.start();
+                    pp.setImageResource(R.drawable.pause_w);
+                }
+            }
+        });
 
+        pf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchActivity.mMediaPlayer.seekTo(SearchActivity.mMediaPlayer.getCurrentPosition() + 30000);
+            }
+        });
     }
 
 }

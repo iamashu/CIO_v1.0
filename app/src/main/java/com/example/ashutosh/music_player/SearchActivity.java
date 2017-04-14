@@ -1,5 +1,7 @@
 package com.example.ashutosh.music_player;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +12,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -56,7 +60,7 @@ public class SearchActivity extends AppCompatActivity
     private Interpolator interp ;
     private TextView mSelectedTrackTitle ;
     private ImageView mSelectedTrackImage ;
-    private MediaPlayer mMediaPlayer ;
+    public static MediaPlayer mMediaPlayer ;
     private ImageView mPlayerControl ;
     private ImageView mforward ;
     public SCService3 scService3 ;
@@ -65,6 +69,7 @@ public class SearchActivity extends AppCompatActivity
     private float offset ;
     private boolean expanded = true;
     String s ;
+    private String imgurl, tit, arti,k ;
     private ArrayList<String> al ;
     private ArrayList<String> artists ;
     private ArrayList<String> genres ;
@@ -166,82 +171,39 @@ public class SearchActivity extends AppCompatActivity
             }
         });
 
-        text.setOnKeyListener(new View.OnKeyListener() {
+        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(event.getAction() == KeyEvent.ACTION_DOWN)
-                {
-                    switch (keyCode)
-                    {
-                        case KeyEvent.KEYCODE_DPAD_CENTER :
-                        case KeyEvent.KEYCODE_ENTER:
-                             s = text.getText().toString() ;
-                             return true ;
-                        default:
-                            break;
-                    }
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    addFromEditText();
+                    return true ;
                 }
                 return false ;
             }
+
         });
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-           /*     try
-                {
-                    FileInputStream fin = openFileInput("userdata") ;
-                    int c ;
-                    String temp = "" ;
-                    while( (c = fin.read()) != -1)
-                    {
-                        temp = temp + Character.toString((char) c) ;
-                    }
-                    System.out.println(temp);
-                    fin.close() ;
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }*/
-                s = text.getText().toString() ;
-                pojoList.clear();
-                mAdapter.notifyDataSetChanged();
-                getData(s);
+            public void onClick(View v)
+            {
+                addFromEditText();
             }
         });
 
-       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        tb.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-
-                   Pojo item = pojoList.get(position) ;
-                String t = item.getArtistName() ;
-                t = t.replace("," , "");
-                t = t.replace(" " , "+");
-                if(al.contains(t))
-                {
-                    artists.remove(t) ;
-                    al.remove(t) ;
-                    TastyToast.makeText(getApplicationContext(), "Song Removed !", TastyToast.LENGTH_SHORT, TastyToast.ERROR) ;
-                }
-                else
-                {
-                    if(!artists.contains(t))
-                        artists.add(t) ;
-                    al.add(t) ;
-                    TastyToast.makeText(getApplicationContext(), "Song Added !", TastyToast.LENGTH_SHORT, TastyToast.SUCCESS) ;
-                }
-                if(al.size() == 5)
-                {
-                    Intent intent = new Intent(SearchActivity.this, Recommended.class);
-                    intent.putStringArrayListExtra("artist", artists) ;
-                    startActivity(intent);
-                }
-
+            public void onClick(View v) {
+                Intent intent = new Intent(SearchActivity.this, Player.class) ;
+                intent.putExtra("img_url", imgurl) ;
+                intent.putExtra("title", tit) ;
+                intent.putExtra("arti", arti) ;
+                intent.putExtra("dura", duration) ;
+                intent.putExtra("tim", k) ;
+                startActivity(intent);
             }
-        }); */
+        });
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -281,6 +243,12 @@ public class SearchActivity extends AppCompatActivity
                 RequestQueue queue = Volley.newRequestQueue(SearchActivity.this) ;
                 queue.add(songPushRequest) ;
 
+                AudioManager manager = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE) ;
+                if(manager.isMusicActive())
+                {
+                    Home.mMediaPlayer.pause();
+                    Home.mPlayerControl.setImageResource(R.drawable.ic_play);
+                }
                 scService3.getRecentTracks(s).enqueue(new Callback<List<Track>>() {
                     @Override
                     public void onResponse(Call<List<Track>> call, retrofit2.Response<List<Track>> response) {
@@ -288,6 +256,11 @@ public class SearchActivity extends AppCompatActivity
                         {
                             List<Track> tracks = response.body() ;
                             Track track = tracks.get(0) ;
+                            imgurl = pojoList.get(position).getImageView();
+                            tit = pojoList.get(position).getTrackName() ;
+                            arti = pojoList.get(position).getArtistName() ;
+                            duration = track.getmDuration() ;
+                            k = millisToMinutesAndSeconds(duration) ;
                             mSelectedTrackTitle.setText(s);
                             Picasso.with(SearchActivity.this).load(pojoList.get(position).getImageView()).into(mSelectedTrackImage);
 
@@ -326,6 +299,23 @@ public class SearchActivity extends AppCompatActivity
 
         iv.animate().translationX(0f).setDuration(duration).setInterpolator(interp) ;
 
+    }
+
+    private String millisToMinutesAndSeconds(int duration)
+    {
+        int minutes = (int) Math.floor(duration/60000) ;
+        String t = String.valueOf((int)(duration % 60000)/1000) ;
+        int seconds = Integer.parseInt(t) ;
+        String a = minutes + ":" ;
+        if(seconds < 10)
+        {
+            a = a + '0' + seconds ;
+        }
+        else
+        {
+            a = a + seconds ;
+        }
+        return a ;
     }
 
     @Override
@@ -395,6 +385,20 @@ public class SearchActivity extends AppCompatActivity
     public void fillList()
     {
         listView.setAdapter(mAdapter);
+    }
+
+    public void addFromEditText()
+    {
+        View view = getCurrentFocus() ;
+        if(view != null)
+        {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
+        s = text.getText().toString() ;
+        pojoList.clear();
+        mAdapter.notifyDataSetChanged();
+        getData(s);
     }
 
 

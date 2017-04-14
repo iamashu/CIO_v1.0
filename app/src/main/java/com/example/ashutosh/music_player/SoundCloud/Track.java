@@ -26,8 +26,14 @@ public class Track
 
     public String getmTags() { return mTags; }
 
+    public int getmDuration()   { return mDuration ;  }
+
+
     @SerializedName("title")
     private String mTitle ;
+
+    @SerializedName("duration")
+    private int mDuration;
 
     @SerializedName("id")
     private String mID ;
