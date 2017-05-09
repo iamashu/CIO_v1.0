@@ -44,8 +44,8 @@
             android:layout_gravity="right"
             app:bmb_buttonEnum="simpleCircle"
             app:bmb_normalColor="@color/com_facebook_button_background_color"
-            app:bmb_piecePlaceEnum="piecePlace_dot_3_1"
-            app:bmb_buttonPlaceEnum="buttonPlace_sc_3_1" />
+            app:bmb_piecePlaceEnum="piecePlace_dot_4_1"
+            app:bmb_buttonPlaceEnum="buttonPlace_sc_4_1" />
 
     <ImageView
         android:id="@+id/ic_s"
@@ -95,22 +95,24 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:layout_marginTop="15dp">
 
                 <ImageView
                     android:id="@+id/iv1"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
                     app:srcCompat="@drawable/muscat3"
-                    android:paddingLeft="10dp"
                     android:layout_marginRight="5dp"
                     android:layout_gravity="left"/>
 
                 <ImageView
                     android:id="@+id/iv2"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
                     app:srcCompat="@drawable/muscat2"
                     android:layout_marginLeft="5dp"
                     android:layout_gravity="right"/>
@@ -120,23 +122,25 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:layout_marginTop="15dp">
 
                 <ImageView
                     android:id="@+id/iv3"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat4"
                     android:layout_marginRight="5dp"
-                    android:paddingLeft="10dp"
+                    android:layout_weight="0.5"
                     android:layout_gravity="left"/>
 
                 <ImageView
                     android:id="@+id/iv4"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/muscat1"
+                    android:layout_weight="0.5"
                     android:layout_marginLeft="5dp"
                     android:layout_gravity="right"/>
 
@@ -146,21 +150,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="15dp">
 
                 <ImageView
                     android:id="@+id/iv5"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
+                    android:layout_weight="0.5"
                     app:srcCompat="@drawable/muscat5"
                     android:layout_marginRight="5dp"
                     android:layout_gravity="left"/>
 
                 <ImageView
                     android:id="@+id/iv6"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
                     app:srcCompat="@drawable/muscat6"
                     android:layout_marginLeft="5dp"
                     android:layout_gravity="right"

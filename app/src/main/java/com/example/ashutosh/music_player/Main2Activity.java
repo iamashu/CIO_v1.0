@@ -50,14 +50,18 @@ public class Main2Activity extends AppCompatActivity {
     private ImageView catView ;
     private Toolbar tb ;
     public Track track ;
+    String artist = "" ;
     public String t ;
     public static String str ;
+    String email = "" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main2);
+
 
         View testView = findViewById(R.id.viewT) ;
 
@@ -65,6 +69,19 @@ public class Main2Activity extends AppCompatActivity {
         tb.setVisibility(View.GONE);
         catView = (ImageView) findViewById(R.id.catv) ;
         catView.getLayoutParams().height = 550 ;
+
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if(accessToken != null)
+        {
+            email = accessToken.getUserId() ;
+        }
+        else {
+            Bundle extras = getIntent().getExtras() ;
+            if(extras != null)
+            {
+                email = extras.getString("em") ;
+            }
+        }
 
         mMediaPlayer = new MediaPlayer() ;
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -119,14 +136,8 @@ public class Main2Activity extends AppCompatActivity {
                 {
                     artist = artist.substring(0,d) ;
                 }
-                t = getData(artist);
-                if(t == "null")
-                {
-                    return ;
-                }
-                else {
-                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                    final String email = accessToken.getUserId();
+                getData(artist);
+
                     mSelectedTrackTitle.setText(track.getTitle());
                     Picasso.with(Main2Activity.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
 
@@ -140,26 +151,11 @@ public class Main2Activity extends AppCompatActivity {
                         mMediaPlayer.setDataSource(track.getStreamURL() + "?client_id=" + Config.CLIENT_ID);
                         mMediaPlayer.prepareAsync();
 
-                        com.android.volley.Response.Listener<String> responseListener = new com.android.volley.Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = jsonObject.getBoolean("success");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        };
-
-                        SongPushRequest songPushRequest = new SongPushRequest(t, email, responseListener);
-                        RequestQueue queue = Volley.newRequestQueue(Main2Activity.this);
-                        queue.add(songPushRequest);
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
+
             }
         });
 
@@ -279,7 +275,7 @@ public class Main2Activity extends AppCompatActivity {
         Toast.makeText(Main2Activity.this, message,Toast.LENGTH_LONG).show();
     }
 
-    private String getData(String s)
+    void getData(String s)
     {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "http://itunes.apple.com/search?term=" + s.replace(" ", "+");
@@ -293,7 +289,41 @@ public class Main2Activity extends AppCompatActivity {
                     if(jsonArray.length() != 0)
                     {
                         JSONObject object = jsonArray.getJSONObject(0);
-                        t = (object.optString("artistName", "Unknown"));
+                        String t = (object.optString("artistName", "Unknown"));
+                        if(t.indexOf(',') >=0)
+                            artist= t.substring(0, t.indexOf(",")) ;
+                        else if(t.indexOf('&') >=0)
+                            artist = t.substring(0,t.indexOf("&"));
+                        else
+                            artist = t;
+                        com.android.volley.Response.Listener<String> responseListener = new com.android.volley.Response.Listener<String>()
+                        {
+                            @Override
+                            public void onResponse(String response)
+                            {
+                                try
+                                {
+                                    JSONObject jsonObject = new JSONObject(response) ;
+                                    boolean success = jsonObject.getBoolean("success") ;
+                                    if(success)
+                                    {
+                                        System.out.println("Successful");
+                                    }
+                                    else
+                                    {
+                                        System.out.println("Not Successful");
+                                    }
+                                }
+                                catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } ;
+
+                        SongPushRequest songPushRequest = new SongPushRequest(artist, email, responseListener) ;
+                        RequestQueue queue = Volley.newRequestQueue(Main2Activity.this) ;
+                        queue.add(songPushRequest) ;
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -309,7 +339,7 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
         queue.add(jsonObjectRequest);
-        return t ;
+
     }
 
 }

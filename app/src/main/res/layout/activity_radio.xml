@@ -6,15 +6,43 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
+    android:background="#26AE90"
     android:paddingTop="@dimen/activity_vertical_margin"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <Button
-        android:text="PLAY"
-        android:layout_width="160dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/b_play"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_below = "@+id/tva">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:src="@drawable/rewind"
+            android:id="@+id/pr"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:src="@drawable/ic_play"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/b_play"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:src="@drawable/forward"
+            android:layout_marginLeft="15dp"
+            android:id="@+id/pf"/>
+
+    </LinearLayout>
 </RelativeLayout>

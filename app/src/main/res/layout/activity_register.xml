@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_register"
     android:layout_width="match_parent"
@@ -9,75 +9,114 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.ashutosh.music_player.RegisterActivity"
-    android:background="@drawable/csreg">
+    android:background="#26AE90"
+    android:orientation="vertical">
 
-    <Button
-        android:text="REGISTER"
-        android:layout_width="340dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:id="@+id/btRegister"
-        android:padding="15dp"
-        android:textSize="25sp"
-        android:textColor="#ffffff"
-        android:background="#27ae60"
-        android:layout_below="@+id/etMobile"
-        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="40dp"
+        android:layout_weight="0.08"
+        android:id="@+id/imvL"
+        android:src="@drawable/log1" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.03"/>
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:textSize="25sp"
-        android:gravity="center_vertical"
-        android:hint="Username"
-        android:drawablePadding="10dp"
-        android:padding="10dp"
-        android:textColorHint="@android:color/background_light"
-        android:layout_gravity="center"
-        android:layout_marginTop="135dp"
-        android:id="@+id/etUname"
-        />
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.05"
+            android:inputType="textEmailAddress"
+            android:textSize="25sp"
+            android:layout_below="@+id/imvL"
+            android:id="@+id/editText3"
+            android:gravity="center_vertical"
+            android:hint="Email"
+            android:drawablePadding="10dp"
+            android:padding="10dp"
+            android:textColorHint="@android:color/background_light"
+            android:layout_gravity="center" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:textSize="25sp"
-        android:id="@+id/editText3"
-        android:gravity="center_vertical"
-        android:hint="Email"
-        android:drawablePadding="10dp"
-        android:padding="10dp"
-        android:textColorHint="@android:color/background_light"
-        android:layout_gravity="center"
-        android:layout_below="@+id/etUname"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.005"/>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:textSize="25sp"
-        android:id="@+id/editText"
-        android:hint="Password"
-        android:gravity="center_vertical"
-        android:layout_below="@+id/editText3"
-        android:drawablePadding="10dp"
-        android:padding="10dp"
-        android:textColorHint="@android:color/background_light"
-        android:layout_gravity="center" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.05"
+            android:inputType="textPassword"
+            android:textSize="25sp"
+            android:id="@+id/editText"
+            android:hint="Password"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/editText3"
+            android:drawablePadding="10dp"
+            android:padding="10dp"
+            android:textColorHint="@android:color/background_light"
+            android:layout_gravity="center" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:textSize="25sp"
-        android:id="@+id/etMobile"
-        android:hint="Mobile No."
-        android:layout_below="@+id/editText"
-        android:drawablePadding="10dp"
-        android:padding="10dp"
-        android:textColorHint="@android:color/background_light"
-        android:layout_gravity="center" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.005"/>
 
-</RelativeLayout>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.05"
+            android:inputType="phone"
+            android:textSize="25sp"
+            android:id="@+id/etMobile"
+            android:hint="Mobile No."
+            android:layout_below="@+id/editText"
+            android:padding="10dp"
+            android:textColorHint="@android:color/background_light"
+            android:layout_gravity="center" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.005"/>
+
+        <Button
+            android:text="REGISTER"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.05"
+            android:id="@+id/btRegister"
+            android:textSize="25sp"
+            android:layout_gravity="center_horizontal"
+            android:textColor="#10A785"
+            android:background="#ECEEF1"
+            android:layout_below="@+id/etMobile"
+            android:layout_centerHorizontal="true"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.01"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.025"
+        android:gravity="center_horizontal"
+        android:text="* Password encrypted using Blowfish Algorithm."/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"/>
+
+
+
+
+
+
+</LinearLayout>

@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.view.inputmethod.EditorInfo;
@@ -61,7 +63,7 @@ public class SearchActivity extends AppCompatActivity
     private TextView mSelectedTrackTitle ;
     private ImageView mSelectedTrackImage ;
     public static MediaPlayer mMediaPlayer ;
-    private ImageView mPlayerControl ;
+    public static ImageView mPlayerControl ;
     private ImageView mforward ;
     public SCService3 scService3 ;
     private Toolbar tb ;
@@ -69,17 +71,23 @@ public class SearchActivity extends AppCompatActivity
     private float offset ;
     private boolean expanded = true;
     String s ;
-    private String imgurl, tit, arti,k ;
+    private String imgurl, tit, arti,k,url ;
+    private Boolean dBle ;
     private ArrayList<String> al ;
     private ArrayList<String> artists ;
     private ArrayList<String> genres ;
     private ListView listView ;
+    String email = "" ;
     private ArrayList<Pojo> pojoList = new ArrayList<Pojo>() ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_search);
 
         View vtb = findViewById(R.id.viewT4) ;
@@ -200,9 +208,14 @@ public class SearchActivity extends AppCompatActivity
                 intent.putExtra("arti", arti) ;
                 intent.putExtra("dura", duration) ;
                 intent.putExtra("tim", k) ;
+                intent.putExtra("url", url) ;
+                intent.putExtra("dbl", dBle) ;
+                intent.putExtra("intent", 1) ;
                 startActivity(intent);
             }
         });
+
+
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -210,9 +223,26 @@ public class SearchActivity extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id)
             {
                 final String s = pojoList.get(position).getTrackName() ;
-                final String artist = pojoList.get(position).getArtistName() ;
+                final String artist ;
+                String t = pojoList.get(position).getArtistName() ;
+                if(t.indexOf(',') >=0)
+                    artist= t.substring(0, t.indexOf(",")) ;
+                else if(t.indexOf('&') >=0)
+                    artist = t.substring(0,t.indexOf("&"));
+                else
+                    artist = t;
                 AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
-                final String email =  accessToken.getUserId() ;
+                if(accessToken != null)
+                {
+                    email = accessToken.getUserId() ;
+                }
+                else {
+                    Bundle extras = getIntent().getExtras() ;
+                    if(extras != null)
+                    {
+                        email = extras.getString("em") ;
+                    }
+                }
 
                 Response.Listener<String> responseListener = new Response.Listener<String>()
                 {
@@ -255,12 +285,18 @@ public class SearchActivity extends AppCompatActivity
                         if(response.isSuccessful())
                         {
                             List<Track> tracks = response.body() ;
+                            if(tracks.size() == 0)
+                            {
+                                return ;
+                            }
                             Track track = tracks.get(0) ;
                             imgurl = pojoList.get(position).getImageView();
                             tit = pojoList.get(position).getTrackName() ;
                             arti = pojoList.get(position).getArtistName() ;
                             duration = track.getmDuration() ;
                             k = millisToMinutesAndSeconds(duration) ;
+                            url = track.getStreamURL() ;
+                            dBle = track.getDble() ;
                             mSelectedTrackTitle.setText(s);
                             Picasso.with(SearchActivity.this).load(pojoList.get(position).getImageView()).into(mSelectedTrackImage);
 
@@ -301,6 +337,18 @@ public class SearchActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        if(mMediaPlayer.isPlaying())
+        {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+        }
+        Intent intent = new Intent(SearchActivity.this, Home.class) ;
+        startActivity(intent);
+    }
+
     private String millisToMinutesAndSeconds(int duration)
     {
         int minutes = (int) Math.floor(duration/60000) ;
@@ -337,11 +385,15 @@ public class SearchActivity extends AppCompatActivity
         {
             mMediaPlayer.pause();
             mPlayerControl.setImageResource(R.drawable.ic_play);
+            if(Player.pp != null)
+                Player.pp.setImageResource(R.drawable.ic_play);
         }
         else
         {
             mMediaPlayer.start();
             mPlayerControl.setImageResource(R.drawable.ic_pause);
+            if(Player.pp != null)
+                Player.pp.setImageResource(R.drawable.ic_pause);
             mforward.setImageResource(R.drawable.forward3);
         }
     }

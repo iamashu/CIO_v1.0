@@ -3,16 +3,18 @@ package com.example.ashutosh.music_player ;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageView;
 
 import java.io.IOException;
 
 public class activity_radio extends AppCompatActivity {
 
-    Button b_play;
+    ImageView b_play;
 
     MediaPlayer mediaPlayer;
 
@@ -24,12 +26,13 @@ public class activity_radio extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_radio);
 
-        b_play = (Button) findViewById(R.id.b_play);
-
-        b_play.setEnabled(false);
-        b_play.setText("LOADING");
+        b_play = (ImageView) findViewById(R.id.b_play);
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -43,14 +46,12 @@ public class activity_radio extends AppCompatActivity {
                 {
                     started = false;
                     mediaPlayer.pause();
-                    b_play.setText("PLAY");
 
                 }
                 else
                 {
                     started = true;
-                    mediaPlayer.pause();
-                    b_play.setText("PAUSE");
+                    mediaPlayer.start();
                 }
 
             }
@@ -78,8 +79,6 @@ public class activity_radio extends AppCompatActivity {
         {
             super.onPostExecute(aBoolean);
             mediaPlayer.start();
-            b_play.setEnabled(true);
-            b_play.setText("PLAY");
         }
     }
 

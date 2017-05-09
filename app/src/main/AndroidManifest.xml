@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
@@ -18,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
         <activity android:name=".Player" />
-        <activity android:name=".Home"></activity>
+        <activity android:name=".Home" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -27,26 +26,20 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".activity_intro">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity android:name=".Main2Activity" />
         <activity
             android:name=".activity_radio"
             android:label="@string/title_activity_radio" />
-        <activity android:name=".SearchActivity">
-
-
-
-        </activity>
-        <activity android:name=".Recommended">
-
-        </activity>
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".Recommended" />
+        <activity android:name=".Topsongs" />
+        <activity android:name=".SimilarArtist"></activity>
     </application>
 
 </manifest>

@@ -1,13 +1,24 @@
 package com.example.ashutosh.music_player;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -29,22 +40,63 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity {
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+import dmax.dialog.SpotsDialog;
+
+public class LoginActivity extends AppCompatActivity implements TextWatcher,
+        CompoundButton.OnCheckedChangeListener{
 
     LoginButton loginButton ;
     CallbackManager callbackManager ;
     public String facebook_id, full_name, email_id ;
+    private CheckBox rem_userpass ;
+    SharedPreferences sharedPreferences ;
+    SharedPreferences.Editor editor ;
+    private static final String PREF_NAME = "prefs" ;
+    private static final String KEY_REMEMBER = "remember" ;
+    private static final String KEY_USERNAME = "username" ;
+    private static final String KEY_PASS = "password" ;
     ProgressDialog progress ;
+    String password = "";
+    EditText eUname ;
+    EditText ePass ;
+    Button btLogin ;
+    TextView btReg ;
+    SpotsDialog ad ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_login);
 
-        final EditText eUname = (EditText) findViewById(R.id.editUname) ;
-        final EditText ePass = (EditText) findViewById(R.id.editPass) ;
-        final Button btLogin = (Button) findViewById(R.id.btLogin) ;
-        final TextView btReg = (TextView) findViewById(R.id.tvRegister) ;
+        sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE) ;
+        editor = sharedPreferences.edit() ;
+
+        rem_userpass = (CheckBox) findViewById(R.id.cbc) ;
+
+
+        eUname = (EditText) findViewById(R.id.editUname) ;
+        ePass = (EditText) findViewById(R.id.editPass) ;
+        btLogin = (Button) findViewById(R.id.btLogin) ;
+        btReg = (TextView) findViewById(R.id.tvRegister) ;
+
+        if(sharedPreferences.getBoolean(KEY_REMEMBER, false))
+            rem_userpass.setChecked(true);
+        else
+            rem_userpass.setChecked(false);
+
+        eUname.setText(sharedPreferences.getString(KEY_USERNAME, ""));
+        ePass.setText(sharedPreferences.getString(KEY_PASS, ""));
+
+        eUname.addTextChangedListener(this);
+        ePass.addTextChangedListener(this);
+        rem_userpass.setOnCheckedChangeListener(this);
 
         progress = new ProgressDialog(LoginActivity.this) ;
         progress.setMessage("Please Wait");
@@ -72,7 +124,8 @@ public class LoginActivity extends AppCompatActivity {
         {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                progress.show() ;
+                ad = new SpotsDialog(LoginActivity.this) ;
+                ad.show();
 
                 GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
@@ -89,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                                     {
                                         JSONObject jsonObject = new JSONObject(response) ;
                                         boolean success = jsonObject.getBoolean("success") ;
-
+                                        ad.dismiss();
                                         Intent intent = new Intent(LoginActivity.this, Home.class) ;
                                         startActivity(intent);
                                     }
@@ -128,7 +181,16 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
+ePass.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+            addFromEditText();
+            return true ;
+        }
+        return false ;
+    }
+});
 
 loginButton.setOnClickListener(new View.OnClickListener() {
     @Override
@@ -151,50 +213,80 @@ loginButton.setOnClickListener(new View.OnClickListener() {
         btLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String email = eUname.getText().toString() ;
-                final String password = ePass.getText().toString() ;
-
-                Response.Listener<String> responseListener = new Response.Listener<String>()
-                {
-
-                    @Override
-                    public void onResponse(String response) {
-                        System.out.println("Entering onResponse");
-                        try
-                        {
-                            JSONObject jsonObject = new JSONObject(response) ;
-                            boolean success = jsonObject.getBoolean("success") ;
-
-                            if(success)
-                            {
-                                System.out.println("Successful");
-                                Intent intent = new Intent(LoginActivity.this, Home.class) ;
-                                startActivity(intent);
-                            }
-                            else
-                            {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this) ;
-                                builder.setMessage("Login Failed")
-                                        .setNegativeButton("Retry", null)
-                                        .create()
-                                        .show();
-
-                            }
-                        }
-                        catch (JSONException e)
-                        {
-                            System.out.println("Entering catch");
-                            e.printStackTrace();
-                        }
-                        System.out.println("No try-catch");
-                    }
-                };
-                LoginRequest loginRequest = new LoginRequest(email, password, responseListener) ;
-                RequestQueue queue = Volley.newRequestQueue(LoginActivity.this) ;
-                queue.add(loginRequest) ;
+                addFromEditText();
             }
         });
 
+    }
+
+    private void addFromEditText() {
+
+        final String email = eUname.getText().toString() ;
+        String password1 = ePass.getText().toString() ;
+        if(email.equals("")  || password1.equals(""))
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this) ;
+            builder.setMessage("Login Failed")
+                    .setNegativeButton("Retry", null)
+                    .create()
+                    .show();
+            return;
+        }
+        ad = new SpotsDialog(LoginActivity.this) ;
+        ad.show();
+        View view = getCurrentFocus() ;
+        if(view != null)
+        {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
+
+        try {
+            password = encrypt(password1 , "ashu") ;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Response.Listener<String> responseListener = new Response.Listener<String>()
+        {
+
+            @Override
+            public void onResponse(String response) {
+                System.out.println("Entering onResponse");
+                try
+                {
+                    JSONObject jsonObject = new JSONObject(response) ;
+                    boolean success = jsonObject.getBoolean("success") ;
+
+                    if(success)
+                    {
+                        ad.dismiss();
+                        Intent intent = new Intent(LoginActivity.this, Home.class) ;
+                        intent.putExtra("em", email) ;
+                        startActivity(intent);
+                    }
+                    else
+                    {
+                        ad.dismiss();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this) ;
+                        builder.setMessage("Login Failed")
+                                .setNegativeButton("Retry", null)
+                                .create()
+                                .show();
+
+                    }
+                }
+                catch (JSONException e)
+                {
+                    System.out.println("Entering catch");
+                    e.printStackTrace();
+                }
+                System.out.println("No try-catch");
+            }
+        };
+        LoginRequest loginRequest = new LoginRequest(email, password, responseListener) ;
+        RequestQueue queue = Volley.newRequestQueue(LoginActivity.this) ;
+        queue.add(loginRequest) ;
     }
 
 
@@ -217,5 +309,60 @@ loginButton.setOnClickListener(new View.OnClickListener() {
             return;
         }
 
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        managePrefs() ;
+    }
+
+    private void managePrefs()
+    {
+        if(rem_userpass.isChecked())
+        {
+            editor.putString(KEY_USERNAME, eUname.getText().toString().trim() ) ;
+            editor.putString(KEY_PASS, ePass.getText().toString().trim() ) ;
+            editor.putBoolean(KEY_REMEMBER, true) ;
+            editor.apply();
+        }
+        else
+        {
+            editor.putBoolean(KEY_REMEMBER, false) ;
+            editor.remove(KEY_PASS) ;
+            editor.remove(KEY_USERNAME) ;
+            editor.apply();
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        managePrefs() ;
+    }
+
+    public static String encrypt(String strClearText, String strKey) throws Exception {
+        String strData = "" ;
+        try {
+            SecretKeySpec secretKeySpec = new SecretKeySpec(strKey.getBytes(), "Blowfish") ;
+            Cipher cipher = Cipher.getInstance("Blowfish") ;
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            byte[] encrypted = cipher.doFinal(strClearText.getBytes()) ;
+            strData = new String(encrypted) ;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new Exception(e) ;
+        }
+        return strData ;
     }
 }

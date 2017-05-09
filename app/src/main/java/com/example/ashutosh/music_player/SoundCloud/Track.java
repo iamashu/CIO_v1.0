@@ -28,6 +28,8 @@ public class Track
 
     public int getmDuration()   { return mDuration ;  }
 
+    public Boolean getDble() {  return mDble; }
+
 
     @SerializedName("title")
     private String mTitle ;
@@ -46,4 +48,7 @@ public class Track
 
     @SerializedName("tag_list")
     private String mTags ;
+
+    @SerializedName("downloadable")
+    private Boolean mDble ;
 }

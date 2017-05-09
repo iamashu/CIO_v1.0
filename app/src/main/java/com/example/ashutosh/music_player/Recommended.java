@@ -1,11 +1,16 @@
 package com.example.ashutosh.music_player;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,14 +49,15 @@ public class Recommended extends AppCompatActivity
 {
     private CustomAdapter mAdapter ;
     public ArrayList<String> artists ;
-    public ArrayList<String> genres ;
-    public ArrayList<String> titles ;
     private ListView listView ;
     private Toolbar tb ;
     private TextView mSelectedTrackTitle ;
     private ImageView mSelectedTrackImage ;
-    private MediaPlayer mMediaPlayer ;
-    private ImageView mPlayerControl ;
+    public static MediaPlayer mMediaPlayer ;
+    public static ImageView mPlayerControl ;
+    private String imgurl, tit, arti,k,url ;
+    private Boolean dBle ;
+    private int duration ;
     private ImageView mforward ;
     public SCService3 scService3 ;
     private ArrayList<Pojo> pojoList = new ArrayList<Pojo>() ;
@@ -60,7 +66,13 @@ public class Recommended extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_recommended);
+
+        ImageView imv1 = (ImageView) findViewById(R.id.imv1) ;
+        imv1.setImageResource(R.drawable.recommended);
 
         View vtb = findViewById(R.id.viewT3) ;
         tb = (Toolbar) vtb.findViewById(R.id.bar_player) ;
@@ -70,15 +82,42 @@ public class Recommended extends AppCompatActivity
         listView = (ListView) v1.findViewById(R.id.track_list_view) ;
         mAdapter = new CustomAdapter(this,R.layout.item, pojoList) ;
         artists = new ArrayList<String>() ;
-
         AccessToken accessToken = AccessToken.getCurrentAccessToken() ;
-        final String email =  accessToken.getUserId() ;
+        String email = "" ;
+        if(accessToken != null)
+        {
+            email = accessToken.getUserId() ;
+        }
+        else {
+            Bundle extras = getIntent().getExtras() ;
+            if(extras != null)
+            {
+                email = extras.getString("em") ;
+            }
+        }
+
+        MyAsyncTask mat = new MyAsyncTask(this) ;
+        mat.doInBackground() ;
 
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
                     JSONArray array = new JSONArray(response);
+                    if(response.length() < 5)
+                    {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Recommended.this);
+                        builder.setMessage("Please listen few songs, so that we can recommend you songs.");
+                        builder.setNegativeButton("Go Back !" + "", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(getApplicationContext(), Home.class));
+                            }
+                        }) ;
+                        builder.create()
+                                .show();
+
+                    }
                     for(int i=0; i < array.length(); i++)
                     {
                         JSONObject jsonobject = array.getJSONObject(i);
@@ -105,8 +144,9 @@ public class Recommended extends AppCompatActivity
                 }
             }
 
-            ;
+
         };
+
 
         SongGetRequest songGetRequest = new SongGetRequest(email, responseListener) ;
         RequestQueue queue = Volley.newRequestQueue(Recommended.this) ;
@@ -133,6 +173,22 @@ public class Recommended extends AppCompatActivity
                 .build() ;
 
         scService3 = SoundCloud.getService3() ;
+
+        tb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Recommended.this, Player.class) ;
+                intent.putExtra("img_url", imgurl) ;
+                intent.putExtra("title", tit) ;
+                intent.putExtra("arti", arti) ;
+                intent.putExtra("dura", duration) ;
+                intent.putExtra("tim", k) ;
+                intent.putExtra("url", url) ;
+                intent.putExtra("dbl", dBle) ;
+                intent.putExtra("intent", 2) ;
+                startActivity(intent);
+            }
+        });
 
         mMediaPlayer = new MediaPlayer() ;
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -178,6 +234,13 @@ public class Recommended extends AppCompatActivity
                                 return ;
                             }
                             Track track = tracks.get(0) ;
+                            imgurl = pojoList.get(position).getImageView();
+                            tit = pojoList.get(position).getTrackName() ;
+                            arti = pojoList.get(position).getArtistName() ;
+                            duration = track.getmDuration() ;
+                            k = millisToMinutesAndSeconds(duration) ;
+                            url = track.getStreamURL() ;
+                            dBle = track.getDble() ;
                             mSelectedTrackTitle.setText(s);
                             Picasso.with(Recommended.this).load(pojoList.get(position).getImageView()).into(mSelectedTrackImage);
 
@@ -215,6 +278,23 @@ public class Recommended extends AppCompatActivity
 
         listView.setAdapter(mAdapter);
 
+    }
+
+    private String millisToMinutesAndSeconds(int duration)
+    {
+        int minutes = (int) Math.floor(duration/60000) ;
+        String t = String.valueOf((int)(duration % 60000)/1000) ;
+        int seconds = Integer.parseInt(t) ;
+        String a = minutes + ":" ;
+        if(seconds < 10)
+        {
+            a = a + '0' + seconds ;
+        }
+        else
+        {
+            a = a + seconds ;
+        }
+        return a ;
     }
 
     @Override
@@ -301,3 +381,5 @@ public class Recommended extends AppCompatActivity
 
 
 }
+
+

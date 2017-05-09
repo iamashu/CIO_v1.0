@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -20,6 +23,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.ashutosh.music_player.SoundCloud.Config;
@@ -34,6 +38,9 @@ import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -70,19 +77,31 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     private Toolbar tb ;
     ScrollView sc ;
     public  SCService3 scService3 ;
+    String artist = "" ;
     private AnimatedCircleLoadingView animatedCircleLoadingView ;
+    public String email ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_home);
+
         View vtb = findViewById(R.id.viewT2) ;
 
         tb = (Toolbar) vtb.findViewById(R.id.bar_player) ;
 
         tb.setVisibility(View.GONE);
 
+
+        Bundle extras = getIntent().getExtras() ;
+        if(extras != null)
+        {
+            email = extras.getString("em") ;
+        }
 
         animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
         startLoading() ;
@@ -166,6 +185,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "one") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
@@ -174,6 +194,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "two") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
@@ -182,6 +203,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "three") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
@@ -190,6 +212,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "four") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
@@ -198,6 +221,7 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "five") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
@@ -206,26 +230,23 @@ public class Home extends AppCompatActivity implements ItemClickListener {
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Main2Activity.class) ;
                 intent.putExtra("category" , "six") ;
+                intent.putExtra("em", email) ;
                 startActivity(intent);
             }
         });
 
-        SimpleCircleButton.Builder builder = new SimpleCircleButton.Builder() ;
-        builder.normalImageRes(R.drawable.radio) ;
-        bmb.addBuilder(builder);
         SimpleCircleButton.Builder builder1 = new SimpleCircleButton.Builder() ;
         builder1.normalImageRes(R.drawable.power) ;
         bmb.addBuilder(builder1);
         SimpleCircleButton.Builder builder2 = new SimpleCircleButton.Builder() ;
         builder2.normalImageRes(R.drawable.recom) ;
         bmb.addBuilder(builder2);
-
-        builder.listener(new OnBMClickListener() {
-            @Override
-            public void onBoomButtonClick(int index) {
-                startActivity(new Intent(getApplicationContext(), activity_radio.class));
-            }
-        }) ;
+        SimpleCircleButton.Builder builder3 = new SimpleCircleButton.Builder() ;
+        builder3.normalImageRes(R.drawable.lead) ;
+        bmb.addBuilder(builder3);
+        SimpleCircleButton.Builder builder4 = new SimpleCircleButton.Builder() ;
+        builder4.normalImageRes(R.drawable.infinity) ;
+        bmb.addBuilder(builder4);
 
         builder1.listener(new OnBMClickListener() {
             @Override
@@ -241,14 +262,34 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         builder2.listener(new OnBMClickListener() {
             @Override
             public void onBoomButtonClick(int index) {
-                startActivity(new Intent(getApplicationContext(), Recommended.class));
+                Intent intent = new Intent(getApplicationContext(), Recommended.class);
+                intent.putExtra("em", email) ;
+                startActivity(intent) ;
             }
         }) ;
+
+        builder3.listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                startActivity(new Intent(getApplicationContext(), Topsongs.class));
+            }
+        }) ;
+
+        builder4.listener(new OnBMClickListener() {
+            @Override
+            public void onBoomButtonClick(int index) {
+                Intent intent = new Intent(getApplicationContext(), SimilarArtist.class);
+                intent.putExtra("em", email) ;
+                startActivity(intent) ;
+            }
+        });
 
         isearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Home.this, SearchActivity.class));
+                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                intent.putExtra("em", email) ;
+                startActivity(intent) ;
             }
         });
 
@@ -306,10 +347,10 @@ public class Home extends AppCompatActivity implements ItemClickListener {
                             Elements arr1 = document.getElementsByTag("h2") ;
                             Elements arr2 = document.select("div.movieImg img") ;
                             Iterator i1 = arr1.listIterator() ;
-
                             while(i1.hasNext())
                             {
-                                arrayList.add(i1.next().toString().replace("<h2>", "").replace("</h2>", "").replace("Video", "").replace("Song", "")) ;
+                                String a = i1.next().toString() ;
+                                arrayList.add(a.toString().replace("<h2>", "").replace("</h2>", "").replace("Video", "").replace("Song", "")) ;
                             }
                             for(Element el : arr2)
                             {
@@ -346,6 +387,72 @@ public class Home extends AppCompatActivity implements ItemClickListener {
         RequestQueue requestQueue = Volley.newRequestQueue(this) ;
         requestQueue.add(stringRequest) ;
 
+    }
+
+    private void getData(String s)
+    {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://itunes.apple.com/search?term=" + s.replace(" ", "+");
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>()
+        {
+            @Override
+            public void onResponse(JSONObject response) {
+                try
+                {
+                    JSONArray jsonArray = response.getJSONArray("results");
+                    if(jsonArray.length() != 0)
+                    {
+                        JSONObject object = jsonArray.getJSONObject(0);
+                        String t = (object.optString("artistName", "Unknown"));
+                        if(t.indexOf(',') >=0)
+                            artist= t.substring(0, t.indexOf(",")) ;
+                        else if(t.indexOf('&') >=0)
+                            artist = t.substring(0,t.indexOf("&"));
+                        else
+                            artist = t;
+                        com.android.volley.Response.Listener<String> responseListener = new com.android.volley.Response.Listener<String>()
+                        {
+                            @Override
+                            public void onResponse(String response)
+                            {
+                                try
+                                {
+                                    JSONObject jsonObject = new JSONObject(response) ;
+                                    boolean success = jsonObject.getBoolean("success") ;
+                                    if(success)
+                                    {
+                                        System.out.println("Successful");
+                                    }
+                                    else
+                                    {
+                                        System.out.println("Not Successful");
+                                    }
+                                }
+                                catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } ;
+
+                        SongPushRequest songPushRequest = new SongPushRequest(artist, email, responseListener) ;
+                        RequestQueue queue = Volley.newRequestQueue(Home.this) ;
+                        queue.add(songPushRequest) ;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }, new com.android.volley.Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(jsonObjectRequest);
     }
 
     private void startLoading()
@@ -405,6 +512,9 @@ public class Home extends AppCompatActivity implements ItemClickListener {
                 {
                     List<Track> tracks = response.body() ;
                     Track track = tracks.get(0) ;
+
+                    AST ast = new AST(arrayList.get(position)) ;
+                    ast.doInBackground() ;
                     mSelectedTrackTitle.setText(arrayList.get(position));
                     Picasso.with(Home.this).load(track.getArtworkURL()).into(mSelectedTrackImage);
 
@@ -443,5 +553,28 @@ public class Home extends AppCompatActivity implements ItemClickListener {
     private void showMessage(String message)
     {
         Toast.makeText(Home.this, message,Toast.LENGTH_LONG).show();
+    }
+
+    class AST extends AsyncTask<String, Void, Object>
+    {
+        String song ;
+        public AST(String s)
+        {
+           this.song = s  ;
+        }
+        @Override
+        protected void onPreExecute()
+        {
+        }
+        @Override
+        protected Object doInBackground(String... params) {
+            getData(song);
+            return null ;
+        }
+
+        @Override
+        protected void onPostExecute(Object result)
+        {
+        }
     }
 }
